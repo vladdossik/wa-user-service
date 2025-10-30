@@ -1,0 +1,29 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025.10.30_005-set-default-values
+      author: mihailov.pashka@yandex.ru
+      changes:
+        - addDefaultValue:
+            tableName: users
+            columnName: status
+            defaultValue: "ACTIVE"
+
+        - addDefaultValue:
+            tableName: users
+            columnName: createdAt
+            defaultValueComputed: CURRENT_TIMESTAMP
+
+        - addDefaultValue:
+            tableName: users
+            columnName: modifyAt
+            defaultValueComputed: CURRENT_TIMESTAMP
+
+        - addDefaultValue:
+            tableName: connected_devices
+            columnName: isActive
+            defaultValueBoolean: true
+
+        - addDefaultValue:
+            tableName: connected_devices
+            columnName: lastSyncAt
+            defaultValueComputed: CURRENT_TIMESTAMP

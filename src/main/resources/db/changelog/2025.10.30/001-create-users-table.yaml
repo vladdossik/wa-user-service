@@ -1,0 +1,23 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025.10.30_001-create-users-table
+      author: mihailov.pashka@yandex.ru
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column: { name: id, type: BIGINT, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: email, type: VARCHAR(255), constraints: { unique: true, nullable: false } }
+              - column: { name: phone, type: VARCHAR(20), constraints: { unique: true, nullable: false } }
+              - column: { name: birthday, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: gender, type: VARCHAR(10), constraints: { nullable: false } }
+              - column: { name: height, type: INTEGER }
+              - column: { name: weight, type: INTEGER }
+              - column: { name: status, type: VARCHAR(20), constraints: { nullable: false } }
+              - column: { name: createdAt, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: modifyAt, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+
+        - createSequence:
+            sequenceName: users_seq
+            startValue: 1
+            incrementBy: 1
