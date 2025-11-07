@@ -11,35 +11,37 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.wa.user.service.model.enums.GenderEnum;
-import org.wa.user.service.model.enums.StatusEnum;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.wa.user.service.model.enumeration.GenderEnum;
+import org.wa.user.service.model.enumeration.StatusEnum;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
-@Data
+@Table(name = "user")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "users_seq")
-    @SequenceGenerator(name = "users_seq", sequenceName = "users_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
+    @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
     private Long id;
 
     @NotBlank(message = "Email is required")
@@ -52,13 +54,13 @@ public class User {
     @Column(name = "phone", unique = true)
     private String phone;
 
-    @NotBlank(message = "Birthday is required")
+    @NotNull(message = "Birthday is required")
     @Past(message = "Birthday must be in the past")
     @Column(name = "birthday")
     private OffsetDateTime birthday;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Gender is required (MALE, FEMALE)")
+    @NotNull(message = "Gender is required (MALE, FEMALE)")
     @Column(name = "gender")
     private GenderEnum gender;
 
@@ -73,37 +75,28 @@ public class User {
     private Integer weight;
 
     @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Status is required")
+    @NotNull(message = "Status is required")
     @Column(name = "status")
     private StatusEnum status;
 
-    @Column(name = "createdAt", updatable = false)
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private OffsetDateTime createdAt;
 
-    @Column(name = "modifyAt")
-    private OffsetDateTime modifyAt;
+    @UpdateTimestamp
+    @Column(name = "modified_at")
+    private OffsetDateTime modifiedAt;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserProfile userProfile;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<ConnectedDevices> connectedDevices = new ArrayList<>();
+    private List<ConnectedDevice> connectedDevices = new ArrayList<>();
 
     public User(String email, String phone, OffsetDateTime birthday, GenderEnum gender) {
         this.email = email;
         this.phone = phone;
         this.birthday = birthday;
         this.gender = gender;
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        createdAt = OffsetDateTime.now(ZoneOffset.UTC);
-        modifyAt = OffsetDateTime.now(ZoneOffset.UTC);
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        modifyAt = OffsetDateTime.now(ZoneOffset.UTC);
     }
 }

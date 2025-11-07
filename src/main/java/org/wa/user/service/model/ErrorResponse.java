@@ -1,13 +1,13 @@
 package org.wa.user.service.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
-import java.time.LocalDateTime;
+import lombok.Getter;
+import java.time.OffsetDateTime;
 
-@Data
+@Getter
 @AllArgsConstructor
 public class ErrorResponse {
     private String message;
     private int status;
-    private LocalDateTime timestamp;
+    private OffsetDateTime timestamp;
 }

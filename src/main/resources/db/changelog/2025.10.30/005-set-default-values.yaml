@@ -4,26 +4,26 @@ databaseChangeLog:
       author: mihailov.pashka@yandex.ru
       changes:
         - addDefaultValue:
-            tableName: users
+            tableName: user
             columnName: status
             defaultValue: "ACTIVE"
 
         - addDefaultValue:
-            tableName: users
-            columnName: createdAt
+            tableName: user
+            columnName: created_at
             defaultValueComputed: CURRENT_TIMESTAMP
 
         - addDefaultValue:
-            tableName: users
-            columnName: modifyAt
+            tableName: user
+            columnName: modified_at
             defaultValueComputed: CURRENT_TIMESTAMP
 
         - addDefaultValue:
-            tableName: connected_devices
-            columnName: isActive
+            tableName: connected_device
+            columnName: is_active
             defaultValueBoolean: true
 
         - addDefaultValue:
-            tableName: connected_devices
-            columnName: lastSyncAt
+            tableName: connected_device
+            columnName: last_sync_at
             defaultValueComputed: CURRENT_TIMESTAMP

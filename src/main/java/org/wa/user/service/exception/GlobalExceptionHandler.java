@@ -18,18 +18,8 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
-    @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateEmail(DuplicateEmailException ex) {
-        return buildResponse(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(DuplicatePhoneException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicatePhone(DuplicatePhoneException ex) {
-        return buildResponse(ex.getMessage(), HttpStatus.CONFLICT);
-    }
-
-    @ExceptionHandler(DuplicateDeviceException.class)
-    public ResponseEntity<ErrorResponse> handleDuplicateDevice(DuplicateDeviceException ex) {
+    @ExceptionHandler(AttributeDuplicateException.class)
+    public ResponseEntity<ErrorResponse> handleAttributeDuplicate(AttributeDuplicateException ex) {
         return buildResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 

@@ -4,11 +4,14 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.wa.user.service.dto.userProfile.UserProfileRequestDto;
-import org.wa.user.service.dto.userProfile.UserProfileResponseDto;
+import org.mapstruct.ReportingPolicy;
+import org.wa.user.service.dto.profile.UserProfileRequestDto;
+import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.model.UserProfile;
 
-@Mapper(componentModel = "spring", nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
+@Mapper(componentModel = "spring",
+        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
+        unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface UserProfileMapper {
     UserProfileResponseDto toResponseDto(UserProfile profile);
 

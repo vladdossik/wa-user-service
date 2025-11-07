@@ -1,15 +1,14 @@
 package org.wa.user.service.dto.user;
 
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Past;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import lombok.Data;
-import org.wa.user.service.model.enums.GenderEnum;
+import org.wa.user.service.model.enumeration.GenderEnum;
 import java.time.OffsetDateTime;
 
 @Data
@@ -22,12 +21,11 @@ public class UserCreateDto {
     @Pattern(regexp = "^\\+7\\d{10}$", message = "Phone should be valid")
     private String phone;
 
-    @NotBlank(message = "Birthday is required")
+    @NotNull(message = "Birthday is required")
     @Past(message = "Birthday must be in the past")
     private OffsetDateTime birthday;
 
-    @Enumerated(EnumType.STRING)
-    @NotBlank(message = "Gender is required (MALE, FEMALE)")
+    @NotNull(message = "Gender is required (MALE, FEMALE)")
     private GenderEnum gender;
 
     @Positive(message = "Height must be positive value")

@@ -3,15 +3,15 @@ package org.wa.user.service.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceCreateDto;
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceResponseDto;
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceUpdateDto;
-import org.wa.user.service.exception.DuplicateDeviceException;
+import org.wa.user.service.dto.device.ConnectedDeviceCreateDto;
+import org.wa.user.service.dto.device.ConnectedDeviceResponseDto;
+import org.wa.user.service.dto.device.ConnectedDeviceUpdateDto;
+import org.wa.user.service.exception.AttributeDuplicateException;
 import org.wa.user.service.exception.ResourceNotFoundException;
-import org.wa.user.service.mapper.ConnectedDevicesMapper;
-import org.wa.user.service.model.ConnectedDevices;
-import org.wa.user.service.repository.ConnectedDevicesRepository;
-import org.wa.user.service.service.ConnectedDevicesService;
+import org.wa.user.service.mapper.ConnectedDeviceMapper;
+import org.wa.user.service.model.ConnectedDevice;
+import org.wa.user.service.repository.ConnectedDeviceRepository;
+import org.wa.user.service.service.ConnectedDeviceService;
 import org.wa.user.service.service.UserService;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
@@ -19,10 +19,11 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-public class ConnectedDevicesServiceImpl implements ConnectedDevicesService {
-    private final ConnectedDevicesRepository deviceRepository;
+public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
+    private final ConnectedDeviceRepository deviceRepository;
     private final UserService userService;
-    private final ConnectedDevicesMapper deviceMapper;
+    private final ConnectedDeviceMapper deviceMapper;
+
     @Override
     public List<ConnectedDeviceResponseDto> getUserDevices(Long userId) {
         if (!userService.userExists(userId)) {
@@ -38,15 +39,15 @@ public class ConnectedDevicesServiceImpl implements ConnectedDevicesService {
         var user = userService.getUserEntity(id);
 
         if (deviceRepository.existsByDeviceId(deviceCreateDto.getDeviceId())) {
-            throw new DuplicateDeviceException("Device ID already exists: " + deviceCreateDto.getDeviceId());
+            throw new AttributeDuplicateException("Device ID already exists: " + deviceCreateDto.getDeviceId());
         }
 
-        ConnectedDevices device = deviceMapper.toEntity(deviceCreateDto);
+        ConnectedDevice device = deviceMapper.toEntity(deviceCreateDto);
         device.setUser(user);
         device.setIsActive(true);
         device.setLastSyncAt(OffsetDateTime.now(ZoneOffset.UTC));
 
-        ConnectedDevices savedDevice = deviceRepository.save(device);
+        ConnectedDevice savedDevice = deviceRepository.save(device);
         return deviceMapper.toResponseDto(savedDevice);
     }
 
@@ -58,20 +59,20 @@ public class ConnectedDevicesServiceImpl implements ConnectedDevicesService {
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
 
-        ConnectedDevices device = deviceRepository.findByUserIdAndDeviceId(userId, deviceId)
+        ConnectedDevice device = deviceRepository.findByUserIdAndDeviceId(userId, deviceId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("Device not found with id: %d for user id: %d", deviceId, userId)
                 ));
 
         deviceMapper.updateEntityFromDto(deviceUpdateDto, device);
-        ConnectedDevices updatedDevice = deviceRepository.save(device);
+        ConnectedDevice updatedDevice = deviceRepository.save(device);
         return deviceMapper.toResponseDto(updatedDevice);
     }
 
     @Override
     @Transactional
     public void deleteDevice(Long userId, Long deviceId) {
-        ConnectedDevices device = deviceRepository.findByUserIdAndDeviceId(userId, deviceId)
+        ConnectedDevice device = deviceRepository.findByUserIdAndDeviceId(userId, deviceId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("Device not found with id: %d for user id: %d", deviceId, userId)
                 ));
@@ -82,13 +83,13 @@ public class ConnectedDevicesServiceImpl implements ConnectedDevicesService {
     @Override
     @Transactional
     public ConnectedDeviceResponseDto syncDevice(Long userId, Long deviceId) {
-        ConnectedDevices device = deviceRepository.findByUserIdAndDeviceId(userId, deviceId)
-                .orElseThrow(() -> new RuntimeException(
+        ConnectedDevice device = deviceRepository.findByUserIdAndDeviceId(userId, deviceId)
+                .orElseThrow(() -> new ResourceNotFoundException(
                         String.format("Device not found with id: %d for user id: %d", deviceId, userId)
                 ));
 
         device.setLastSyncAt(OffsetDateTime.now(ZoneOffset.UTC));
-        ConnectedDevices updatedDevice = deviceRepository.save(device);
+        ConnectedDevice updatedDevice = deviceRepository.save(device);
         return deviceMapper.toResponseDto(updatedDevice);
     }
 }

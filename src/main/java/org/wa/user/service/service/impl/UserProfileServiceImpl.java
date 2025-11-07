@@ -3,8 +3,8 @@ package org.wa.user.service.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.wa.user.service.dto.userProfile.UserProfileRequestDto;
-import org.wa.user.service.dto.userProfile.UserProfileResponseDto;
+import org.wa.user.service.dto.profile.UserProfileRequestDto;
+import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.exception.ResourceNotFoundException;
 import org.wa.user.service.exception.UserProfileAlreadyExistsException;
 import org.wa.user.service.mapper.UserProfileMapper;
@@ -20,6 +20,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserService userService;
     private final UserProfileMapper userProfileMapper;
+
     @Override
     public UserProfileResponseDto getUserProfile(Long userId) {
         UserProfile userProfile = userProfileRepository.findByUserId(userId)
@@ -55,6 +56,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     }
 
     @Override
+    @Transactional
     public void deleteUserProfile(Long userId) {
         UserProfile profile = userProfileRepository.findByUserId(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Profile not found"));

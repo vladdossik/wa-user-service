@@ -1,9 +1,9 @@
-package org.wa.user.service.dto.userProfile;
+package org.wa.user.service.dto.profile;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.wa.user.service.model.enums.ActivityLevelEnum;
-import org.wa.user.service.model.enums.HealthGoalEnum;
+import org.wa.user.service.model.enumeration.ActivityLevelEnum;
+import org.wa.user.service.model.enumeration.HealthGoalEnum;
 
 @Data
 public class UserProfileRequestDto {

@@ -14,14 +14,16 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.wa.user.service.model.enums.ActivityLevelEnum;
-import org.wa.user.service.model.enums.HealthGoalEnum;
+import lombok.Setter;
+import org.wa.user.service.model.enumeration.ActivityLevelEnum;
+import org.wa.user.service.model.enumeration.HealthGoalEnum;
 
 @Entity
 @Table(name = "user_profile")
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserProfile {
@@ -35,19 +37,19 @@ public class UserProfile {
     private User user;
 
     @NotBlank(message = "First name is required")
-    @Column(name = "firstName", nullable = false)
+    @Column(name = "first_name", nullable = false)
     private String firstName;
 
     @NotBlank(message = "Last name is required")
-    @Column(name = "lastName", nullable = false)
+    @Column(name = "last_name", nullable = false)
     private String lastName;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "activityLevel")
+    @Column(name = "activity_level")
     private ActivityLevelEnum activityLevel;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "healthGoal")
+    @Column(name = "health_goal")
     private HealthGoalEnum healthGoal;
 
     public UserProfile(User user, String firstName, String lastName) {

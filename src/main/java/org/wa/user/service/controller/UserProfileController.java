@@ -12,8 +12,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.wa.user.service.dto.userProfile.UserProfileRequestDto;
-import org.wa.user.service.dto.userProfile.UserProfileResponseDto;
+import org.wa.user.service.dto.profile.UserProfileRequestDto;
+import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.service.UserProfileService;
 
 @RestController

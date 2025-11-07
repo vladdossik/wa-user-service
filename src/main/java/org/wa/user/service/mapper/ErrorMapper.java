@@ -2,15 +2,15 @@ package org.wa.user.service.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.mapstruct.ReportingPolicy;
 import org.springframework.http.HttpStatus;
 import org.wa.user.service.model.ErrorResponse;
+import java.time.OffsetDateTime;
 
-import java.time.LocalDateTime;
-
-@Mapper(componentModel = "spring", imports = LocalDateTime.class)
+@Mapper(componentModel = "spring", imports = OffsetDateTime.class, unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface ErrorMapper {
     @Mapping(target = "message", source = "message")
     @Mapping(target = "status", expression = "java(status.value())")
-    @Mapping(target = "timestamp", expression = "java(LocalDateTime.now())")
+    @Mapping(target = "timestamp", expression = "java(OffsetDateTime.now())")
     ErrorResponse toErrorResponse(String message, HttpStatus status);
 }

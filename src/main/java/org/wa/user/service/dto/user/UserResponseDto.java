@@ -1,8 +1,8 @@
 package org.wa.user.service.dto.user;
 
 import lombok.Data;
-import org.wa.user.service.model.enums.GenderEnum;
-import org.wa.user.service.model.enums.StatusEnum;
+import org.wa.user.service.model.enumeration.GenderEnum;
+import org.wa.user.service.model.enumeration.StatusEnum;
 import java.time.OffsetDateTime;
 
 @Data
@@ -16,5 +16,5 @@ public class UserResponseDto {
     private Integer weight;
     private StatusEnum status;
     private OffsetDateTime createdAt;
-    private OffsetDateTime modifyAt;
+    private OffsetDateTime modifiedAt;
 }

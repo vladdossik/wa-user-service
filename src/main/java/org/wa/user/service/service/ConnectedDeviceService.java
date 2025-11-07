@@ -1,11 +1,11 @@
 package org.wa.user.service.service;
 
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceCreateDto;
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceResponseDto;
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceUpdateDto;
+import org.wa.user.service.dto.device.ConnectedDeviceCreateDto;
+import org.wa.user.service.dto.device.ConnectedDeviceResponseDto;
+import org.wa.user.service.dto.device.ConnectedDeviceUpdateDto;
 import java.util.List;
 
-public interface ConnectedDevicesService {
+public interface ConnectedDeviceService {
     List<ConnectedDeviceResponseDto> getUserDevices(Long id);
 
     ConnectedDeviceResponseDto addUserDevice(Long id, ConnectedDeviceCreateDto deviceCreateDto);

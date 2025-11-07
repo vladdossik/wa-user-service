@@ -13,54 +13,52 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.wa.user.service.model.enums.ConnectedDevicesTypeEnum;
+import lombok.Setter;
+import org.hibernate.annotations.UpdateTimestamp;
+import org.wa.user.service.model.enumeration.ConnectedDeviceTypeEnum;
 import java.time.OffsetDateTime;
-import java.time.ZoneOffset;
 
 @Entity
-@Table(name = "connected_devices")
-@Data
+@Table(name = "connected_device")
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConnectedDevices {
+public class ConnectedDevice {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "connected_devices_seq")
-    @SequenceGenerator(name = "connected_devices_seq", sequenceName = "connected_devices_seq", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "connected_device_seq")
+    @SequenceGenerator(name = "connected_device_seq", sequenceName = "connected_device_seq", allocationSize = 1)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @NotBlank(message = "Device type is required")
+    @NotNull(message = "Device type is required")
     @Enumerated(EnumType.STRING)
-    @Column(name = "deviceType", nullable = false)
-    private ConnectedDevicesTypeEnum deviceType;
+    @Column(name = "device_type", nullable = false)
+    private ConnectedDeviceTypeEnum deviceType;
 
     @NotBlank(message = "Device ID is required")
-    @Column(name = "deviceId", nullable = false)
+    @Column(name = "device_id", nullable = false)
     private String deviceId;
 
     @NotBlank(message = "Device model is required")
-    @Column(name = "deviceModel")
+    @Column(name = "device_model")
     private String deviceModel;
 
-    @Column(name = "isActive")
+    @Column(name = "is_active")
     private Boolean isActive;
 
-    @Column(name = "lastSyncAt")
+    @UpdateTimestamp
+    @Column(name = "last_sync_at")
     private OffsetDateTime lastSyncAt;
 
-    protected void onCreate() {
-        if (lastSyncAt == null) {
-            lastSyncAt = OffsetDateTime.now(ZoneOffset.UTC);
-        }
-    }
-
-    public ConnectedDevices(User user, ConnectedDevicesTypeEnum deviceType, String deviceId) {
+    public ConnectedDevice(User user, ConnectedDeviceTypeEnum deviceType, String deviceId) {
         this.user = user;
         this.deviceType = deviceType;
         this.deviceId = deviceId;

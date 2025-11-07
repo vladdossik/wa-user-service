@@ -13,19 +13,18 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceCreateDto;
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceResponseDto;
-import org.wa.user.service.dto.connectedDevices.ConnectedDeviceUpdateDto;
-import org.wa.user.service.service.ConnectedDevicesService;
-
+import org.wa.user.service.dto.device.ConnectedDeviceCreateDto;
+import org.wa.user.service.dto.device.ConnectedDeviceResponseDto;
+import org.wa.user.service.dto.device.ConnectedDeviceUpdateDto;
+import org.wa.user.service.service.ConnectedDeviceService;
 import java.util.List;
 
 @RestController
 @RequestMapping("/v1/users/{userId}/devices")
 @RequiredArgsConstructor
-public class ConnectedDevicesController {
+public class ConnectedDeviceController {
 
-    private final ConnectedDevicesService devicesService;
+    private final ConnectedDeviceService devicesService;
 
     @GetMapping
     public ResponseEntity<List<ConnectedDeviceResponseDto>> getUserDevices(@PathVariable Long userId) {
@@ -46,11 +45,11 @@ public class ConnectedDevicesController {
             @PathVariable Long userId,
             @PathVariable Long deviceId,
             @Valid @RequestBody ConnectedDeviceUpdateDto updateDto) {
-        ConnectedDeviceResponseDto device = devicesService.updateUserDevice(userId, deviceId, updateDto);//TODO
+        ConnectedDeviceResponseDto device = devicesService.updateUserDevice(userId, deviceId, updateDto);
         return ResponseEntity.ok(device);
     }
 
-    @PatchMapping("/devices/{deviceId}/sync")
+    @PatchMapping("/{deviceId}/sync")
     public ResponseEntity<ConnectedDeviceResponseDto> syncDevice(
             @PathVariable Long userId,
             @PathVariable Long deviceId) {
@@ -58,7 +57,7 @@ public class ConnectedDevicesController {
         return ResponseEntity.ok(device);
     }
 
-    @DeleteMapping("/devices/{deviceId}")
+    @DeleteMapping("/{deviceId}")
     public ResponseEntity<Void> deleteDevice(@PathVariable Long userId,
                                              @PathVariable Long deviceId) {
         devicesService.deleteDevice(userId, deviceId);

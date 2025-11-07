@@ -8,10 +8,10 @@ databaseChangeLog:
             columns:
               - column: { name: id, type: BIGINT, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
               - column: { name: user_id, type: BIGINT, constraints: { nullable: false } }
-              - column: { name: firstName, type: VARCHAR(100), constraints: { nullable: false } }
-              - column: { name: lastName, type: VARCHAR(100), constraints: { nullable: false } }
-              - column: { name: activityLevel, type: VARCHAR(20) }
-              - column: { name: healthGoal, type: VARCHAR(30) }
+              - column: { name: first_name, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: last_name, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: activity_level, type: VARCHAR(20) }
+              - column: { name: health_goal, type: VARCHAR(30) }
 
         - createSequence:
             sequenceName: user_profile_seq
@@ -21,7 +21,7 @@ databaseChangeLog:
         - addForeignKeyConstraint:
             baseTableName: user_profile
             baseColumnNames: user_id
-            referencedTableName: users
+            referencedTableName: user
             referencedColumnNames: id
             constraintName: fk_user_profile_user
             onDelete: CASCADE

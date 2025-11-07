@@ -1,4 +1,4 @@
-package org.wa.user.service.dto.connectedDevices;
+package org.wa.user.service.dto.device;
 
 import lombok.Data;
 

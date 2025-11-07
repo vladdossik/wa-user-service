@@ -1,6 +1,8 @@
 package org.wa.user.service.service.impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.wa.user.service.dto.user.UserCreateDto;
@@ -8,15 +10,13 @@ import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserUpdateDto;
 import org.wa.user.service.dto.user.UserStatusUpdateDto;
-import org.wa.user.service.exception.DuplicateEmailException;
-import org.wa.user.service.exception.DuplicatePhoneException;
+import org.wa.user.service.exception.AttributeDuplicateException;
 import org.wa.user.service.exception.ResourceNotFoundException;
 import org.wa.user.service.mapper.UserMapper;
 import org.wa.user.service.model.User;
-import org.wa.user.service.model.enums.StatusEnum;
+import org.wa.user.service.model.enumeration.StatusEnum;
 import org.wa.user.service.repository.UserRepository;
 import org.wa.user.service.service.UserService;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -26,14 +26,27 @@ public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
 
     @Override
-    public List<UserShortInfoDto> getAllUsers() {
-        return userMapper.toShortInfoDtoList(userRepository.findAll());
+    public Page<UserShortInfoDto> getAllUsers(Pageable pageable) {
+        Page<User> users = userRepository.findAll(pageable);
+
+        return users.map(userMapper::toShortInfoDto);
+    }
+
+    @Override
+    public Page<UserShortInfoDto> getNonDeletedUsers(Pageable pageable) {
+        Page<User> users = userRepository.findByStatusNot(StatusEnum.DELETED, pageable);
+
+        return users.map(userMapper::toShortInfoDto);
     }
 
     @Override
     public UserResponseDto getUserById(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(
-                ()-> new ResourceNotFoundException("User not found with this userId " + userId));
+                () -> new ResourceNotFoundException("User not found with this userId " + userId));
+
+        if (user.getStatus() == StatusEnum.DELETED) {
+            throw new ResourceNotFoundException("User not found with userId " + userId);
+        }
 
         return userMapper.toResponseDto(user);
     }
@@ -41,11 +54,11 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponseDto createUser(UserCreateDto createDto) {
-        if (userRepository.existsByEmail(createDto.getEmail())){
-            throw new DuplicateEmailException("Email is already exists: " + createDto.getEmail());
+        if (userRepository.existsByEmail(createDto.getEmail())) {
+            throw new AttributeDuplicateException("Email is already exists: " + createDto.getEmail());
         }
-        if (userRepository.existsByPhone(createDto.getPhone())){
-            throw new DuplicatePhoneException("Phone is already exists: " + createDto.getPhone());
+        if (userRepository.existsByPhone(createDto.getPhone())) {
+            throw new AttributeDuplicateException("Phone is already exists: " + createDto.getPhone());
         }
 
         User user = userMapper.toEntity(createDto);
@@ -62,16 +75,20 @@ public class UserServiceImpl implements UserService {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with this userId: " + userId));
 
+        if (user.getStatus() == StatusEnum.DELETED) {
+            throw new ResourceNotFoundException("Cannot update deleted user with userId: " + userId);
+        }
+
         if (updateDto.getEmail() != null &&
                 !user.getEmail().equals(updateDto.getEmail()) &&
                 userRepository.existsByEmailAndIdNot(updateDto.getEmail(), userId)) {
-            throw new DuplicateEmailException("Email already exists: " + updateDto.getEmail());
+            throw new AttributeDuplicateException("Email already exists: " + updateDto.getEmail());
         }
 
         if (updateDto.getPhone() != null &&
                 !user.getPhone().equals(updateDto.getPhone()) &&
                 userRepository.existsByPhoneAndIdNot(updateDto.getPhone(), userId)) {
-            throw new DuplicatePhoneException("Phone already exists: " + updateDto.getPhone());
+            throw new AttributeDuplicateException("Phone already exists: " + updateDto.getPhone());
         }
 
         userMapper.updateEntityFromDto(updateDto, user);
@@ -82,6 +99,16 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public void deleteUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with userId: " + userId));
+
+        user.setStatus(StatusEnum.DELETED);
+        userRepository.save(user);
+    }
+
+    @Override
+    @Transactional
+    public void hardDeleteUser(Long userId) {
         if (!userRepository.existsById(userId)) {
             throw new ResourceNotFoundException("User not found with this userId" + userId);
         }
