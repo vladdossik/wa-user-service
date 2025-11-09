@@ -1,4 +1,4 @@
-package org.wa.user.service.model;
+package org.wa.user.service.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,14 +12,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.wa.user.service.model.enumeration.ConnectedDeviceTypeEnum;
+import org.wa.user.service.entity.enumeration.ConnectedDeviceType;
 import java.time.OffsetDateTime;
 
 @Entity
@@ -28,7 +26,7 @@ import java.time.OffsetDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ConnectedDevice {
+public class ConnectedDeviceEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "connected_device_seq")
     @SequenceGenerator(name = "connected_device_seq", sequenceName = "connected_device_seq", allocationSize = 1)
@@ -36,18 +34,15 @@ public class ConnectedDevice {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserEntity user;
 
-    @NotNull(message = "Device type is required")
     @Enumerated(EnumType.STRING)
     @Column(name = "device_type", nullable = false)
-    private ConnectedDeviceTypeEnum deviceType;
+    private ConnectedDeviceType deviceType;
 
-    @NotBlank(message = "Device ID is required")
     @Column(name = "device_id", nullable = false)
     private String deviceId;
 
-    @NotBlank(message = "Device model is required")
     @Column(name = "device_model")
     private String deviceModel;
 
@@ -58,7 +53,7 @@ public class ConnectedDevice {
     @Column(name = "last_sync_at")
     private OffsetDateTime lastSyncAt;
 
-    public ConnectedDevice(User user, ConnectedDeviceTypeEnum deviceType, String deviceId) {
+    public ConnectedDeviceEntity(UserEntity user, ConnectedDeviceType deviceType, String deviceId) {
         this.user = user;
         this.deviceType = deviceType;
         this.deviceId = deviceId;

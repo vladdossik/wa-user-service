@@ -1,4 +1,4 @@
-package org.wa.user.service.model;
+package org.wa.user.service.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,13 +12,12 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.wa.user.service.model.enumeration.ActivityLevelEnum;
-import org.wa.user.service.model.enumeration.HealthGoalEnum;
+import org.wa.user.service.entity.enumeration.ActivityLevel;
+import org.wa.user.service.entity.enumeration.HealthGoal;
 
 @Entity
 @Table(name = "user_profile")
@@ -26,7 +25,7 @@ import org.wa.user.service.model.enumeration.HealthGoalEnum;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserProfile {
+public class UserProfileEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_profile_seq")
     @SequenceGenerator(name = "user_profile_seq", sequenceName = "user_profile_seq", allocationSize = 1)
@@ -34,25 +33,23 @@ public class UserProfile {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    private UserEntity user;
 
-    @NotBlank(message = "First name is required")
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
-    @NotBlank(message = "Last name is required")
     @Column(name = "last_name", nullable = false)
     private String lastName;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "activity_level")
-    private ActivityLevelEnum activityLevel;
+    private ActivityLevel activityLevel;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "health_goal")
-    private HealthGoalEnum healthGoal;
+    private HealthGoal healthGoal;
 
-    public UserProfile(User user, String firstName, String lastName) {
+    public UserProfileEntity(UserEntity user, String firstName, String lastName) {
         this.user = user;
         this.firstName = firstName;
         this.lastName = lastName;

@@ -7,19 +7,19 @@ import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.mapstruct.ReportingPolicy;
 import org.wa.user.service.dto.profile.UserProfileRequestDto;
 import org.wa.user.service.dto.profile.UserProfileResponseDto;
-import org.wa.user.service.model.UserProfile;
+import org.wa.user.service.entity.UserProfileEntity;
 
 @Mapper(componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface UserProfileMapper {
-    UserProfileResponseDto toResponseDto(UserProfile profile);
+    UserProfileResponseDto toResponseDto(UserProfileEntity profile);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    UserProfile toEntity(UserProfileRequestDto requestDto);
+    UserProfileEntity toEntity(UserProfileRequestDto requestDto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
-    void updateEntityFromDto(UserProfileRequestDto requestDto, @MappingTarget UserProfile profile);
+    void updateEntityFromDto(UserProfileRequestDto requestDto, @MappingTarget UserProfileEntity profile);
 }

@@ -9,15 +9,15 @@ import org.wa.user.service.dto.user.UserCreateDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserUpdateDto;
-import org.wa.user.service.model.User;
+import org.wa.user.service.entity.UserEntity;
 
 @Mapper(componentModel = "spring",
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
         unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface UserMapper {
-    UserResponseDto toResponseDto(User user);
+    UserResponseDto toResponseDto(UserEntity userEntity);
 
-    UserShortInfoDto toShortInfoDto(User user);
+    UserShortInfoDto toShortInfoDto(UserEntity userEntity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "status", ignore = true)
@@ -25,7 +25,7 @@ public interface UserMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "userProfile", ignore = true)
     @Mapping(target = "connectedDevices", ignore = true)
-    User toEntity(UserCreateDto createDto);
+    UserEntity toEntity(UserCreateDto createDto);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "birthday", ignore = true)
@@ -35,5 +35,5 @@ public interface UserMapper {
     @Mapping(target = "modifiedAt", ignore = true)
     @Mapping(target = "userProfile", ignore = true)
     @Mapping(target = "connectedDevices", ignore = true)
-    void updateEntityFromDto(UserUpdateDto updateDto, @MappingTarget User user);
+    void updateEntityFromDto(UserUpdateDto updateDto, @MappingTarget UserEntity userEntity);
 }

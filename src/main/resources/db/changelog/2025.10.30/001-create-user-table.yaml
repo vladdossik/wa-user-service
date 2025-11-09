@@ -9,7 +9,7 @@ databaseChangeLog:
               - column: { name: id, type: BIGINT, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
               - column: { name: email, type: VARCHAR(255), constraints: { unique: true, nullable: false } }
               - column: { name: phone, type: VARCHAR(20), constraints: { unique: true, nullable: false } }
-              - column: { name: birthday, type: TIMESTAMP WITH TIME ZONE, constraints: { nullable: false } }
+              - column: { name: birthday, type: TIMESTAMP, constraints: { nullable: false } }
               - column: { name: gender, type: VARCHAR(10), constraints: { nullable: false } }
               - column: { name: height, type: INTEGER }
               - column: { name: weight, type: INTEGER }

@@ -4,7 +4,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.springframework.http.HttpStatus;
-import org.wa.user.service.model.ErrorResponse;
+import org.wa.user.service.entity.ErrorResponse;
 import java.time.OffsetDateTime;
 
 @Mapper(componentModel = "spring", imports = OffsetDateTime.class, unmappedTargetPolicy = ReportingPolicy.ERROR)

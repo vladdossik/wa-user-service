@@ -2,8 +2,8 @@ package org.wa.user.service.dto.profile;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;
-import org.wa.user.service.model.enumeration.ActivityLevelEnum;
-import org.wa.user.service.model.enumeration.HealthGoalEnum;
+import org.wa.user.service.entity.enumeration.ActivityLevel;
+import org.wa.user.service.entity.enumeration.HealthGoal;
 
 @Data
 public class UserProfileRequestDto {
@@ -11,6 +11,6 @@ public class UserProfileRequestDto {
     private String firstName;
     @NotBlank(message = "Last name is required")
     private String lastName;
-    private ActivityLevelEnum activityLevel;
-    private HealthGoalEnum healthGoal;
+    private ActivityLevel activityLevel;
+    private HealthGoal healthGoal;
 }

@@ -1,4 +1,4 @@
-package org.wa.user.service.model;
+package org.wa.user.service.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
