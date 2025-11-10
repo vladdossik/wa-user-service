@@ -1,0 +1,46 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025.10.30_004-add-constraints-and-indexes
+      author: mihailov.pashka@yandex.ru
+      changes:
+        - createIndex:
+            indexName: idx_user_email
+            tableName: user
+            columns:
+              - column: { name: email }
+
+        - createIndex:
+            indexName: idx_user_phone
+            tableName: user
+            columns:
+              - column: { name: phone }
+
+        - createIndex:
+            indexName: idx_user_status
+            tableName: user
+            columns:
+              - column: { name: status }
+
+        - createIndex:
+            indexName: idx_user_profile_user_id
+            tableName: user_profile
+            columns:
+              - column: { name: user_id }
+
+        - createIndex:
+            indexName: idx_connected_device_user_id
+            tableName: connected_device
+            columns:
+              - column: { name: user_id }
+
+        - createIndex:
+            indexName: idx_connected_device_device_id
+            tableName: connected_device
+            columns:
+            - column: { name: device_id }
+
+        - createIndex:
+            indexName: idx_connected_device_active
+            tableName: connected_device
+            columns:
+               - column: { name: is_active }

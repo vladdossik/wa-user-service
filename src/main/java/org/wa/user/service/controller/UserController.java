@@ -1,0 +1,86 @@
+package org.wa.user.service.controller;
+
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.bind.annotation.RestController;
+import org.wa.user.service.dto.common.PageResponse;
+import org.wa.user.service.dto.user.UserCreateDto;
+import org.wa.user.service.dto.user.UserResponseDto;
+import org.wa.user.service.dto.user.UserShortInfoDto;
+import org.wa.user.service.dto.user.UserStatusUpdateDto;
+import org.wa.user.service.dto.user.UserUpdateDto;
+import org.wa.user.service.service.UserService;
+
+@RestController
+@RequestMapping("/v1/users")
+@RequiredArgsConstructor
+public class UserController {
+    private final UserService userService;
+
+    @GetMapping
+    public PageResponse<UserShortInfoDto> getAllUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        return userService.getAllUsers(pageable);
+    }
+
+    @GetMapping("/active")
+    public PageResponse<UserShortInfoDto> getActiveUsers(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "id") String sort) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        return userService.getNonDeletedUsers(pageable);
+    }
+
+    @GetMapping("/{id}")
+    public UserResponseDto getUserById(@PathVariable Long id) {
+        return userService.getUserById(id);
+    }
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    public UserResponseDto createUser(@Valid @RequestBody UserCreateDto createDto) {
+        return userService.createUser(createDto);
+    }
+
+    @PutMapping("/{id}")
+    public UserResponseDto updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDto updateDto) {
+        return userService.updateUser(id, updateDto);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteUser(@PathVariable Long id) {
+        userService.deleteUser(id);
+    }
+
+    @DeleteMapping("/{id}/permanent")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void hardDeleteUser(@PathVariable Long id) {
+        userService.hardDeleteUser(id);
+    }
+
+    @PatchMapping("/{id}/status")
+    public UserResponseDto updateUserStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody UserStatusUpdateDto statusDto) {
+        return userService.updateUserStatus(id, statusDto);
+    }
+}

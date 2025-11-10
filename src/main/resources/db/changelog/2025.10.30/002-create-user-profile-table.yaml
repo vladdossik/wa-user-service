@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025.10.30_002-create-user-profile-table
+      author: mihailov.pashka@yandex.ru
+      changes:
+        - createTable:
+            tableName: user_profile
+            columns:
+              - column: { name: id, type: BIGINT, autoIncrement: true, constraints: { primaryKey: true, nullable: false } }
+              - column: { name: user_id, type: BIGINT, constraints: { nullable: false } }
+              - column: { name: first_name, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: last_name, type: VARCHAR(100), constraints: { nullable: false } }
+              - column: { name: activity_level, type: VARCHAR(20) }
+              - column: { name: health_goal, type: VARCHAR(30) }
+
+        - createSequence:
+            sequenceName: user_profile_seq
+            startValue: 1
+            incrementBy: 1
+
+        - addForeignKeyConstraint:
+            baseTableName: user_profile
+            baseColumnNames: user_id
+            referencedTableName: user
+            referencedColumnNames: id
+            constraintName: fk_user_profile_user
+            onDelete: CASCADE
+            onUpdate: CASCADE
+
+        - addUniqueConstraint:
+            tableName: user_profile
+            columnNames: user_id
+            constraintName: uk_user_profile_user

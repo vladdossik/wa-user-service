@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: wa-user-service
+  datasource:
+    url: jdbc:postgresql://localhost:5432/wa_user_service_db
+    username: postgres
+    password: 4589
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: true
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.yaml
+    analytics-enabled: true
+
+server:
+  port: 8080

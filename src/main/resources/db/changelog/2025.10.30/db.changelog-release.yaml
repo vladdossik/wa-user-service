@@ -1,0 +1,11 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/2025.10.30/001-create-user-table.yaml
+  - include:
+      file: db/changelog/2025.10.30/002-create-user-profile-table.yaml
+  - include:
+      file: db/changelog/2025.10.30/003-create-connected-device-table.yaml
+  - include:
+      file: db/changelog/2025.10.30/004-add-constraints-and-indexes.yaml
+  - include:
+      file: db/changelog/2025.10.30/005-set-default-values.yaml
