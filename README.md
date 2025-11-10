@@ -1,1 +1,1 @@
-# wa-userEntity-service
+# wa-user-service
