@@ -20,12 +20,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserProfileServiceImplTest {
-
     @Mock
     private UserProfileRepository userProfileRepository;
 
@@ -52,7 +52,7 @@ public class UserProfileServiceImplTest {
     }
 
     @Test
-    void getUserProfileSuccessTest() {
+    void getUserProfileTest_success() {
         when(userProfileRepository.findByUserId(Initializer.TEST_ID))
                 .thenReturn(Optional.of(userProfile));
         when(userProfileMapper.toResponseDto(userProfile)).thenReturn(userProfileResponseDto);
@@ -62,11 +62,11 @@ public class UserProfileServiceImplTest {
         assertNotNull(response);
         assertEquals(Initializer.TEST_FIRST_NAME, response.getFirstName());
         assertEquals(Initializer.TEST_LAST_NAME, response.getLastName());
-        verify(userProfileRepository).findByUserId(Initializer.TEST_ID);
+        verify(userProfileRepository, times(1)).findByUserId(Initializer.TEST_ID);
     }
 
     @Test
-    void getUserProfileWhenProfileNotFoundTest() {
+    void getUserProfileTest_profileNotFound() {
         when(userProfileRepository.findByUserId(Initializer.TEST_ID))
                 .thenReturn(Optional.empty());
 
@@ -75,7 +75,7 @@ public class UserProfileServiceImplTest {
     }
 
     @Test
-    void createUserProfileSuccessTest() {
+    void createUserProfileTest_success() {
         when(userService.getUserEntity(Initializer.TEST_ID)).thenReturn(user);
         when(userProfileRepository.existsByUserId(Initializer.TEST_ID)).thenReturn(false);
         when(userProfileMapper.toEntity(userProfileRequestDto)).thenReturn(userProfile);
@@ -87,11 +87,11 @@ public class UserProfileServiceImplTest {
 
         assertNotNull(response);
         assertEquals(user, userProfile.getUser());
-        verify(userProfileRepository).save(userProfile);
+        verify(userProfileRepository, times(1)).save(userProfile);
     }
 
     @Test
-    void createUserProfileWhenProfileAlreadyExistsTest() {
+    void createUserProfileTest_profileAlreadyExists() {
         when(userService.getUserEntity(Initializer.TEST_ID)).thenReturn(user);
         when(userProfileRepository.existsByUserId(Initializer.TEST_ID)).thenReturn(true);
 
@@ -100,7 +100,7 @@ public class UserProfileServiceImplTest {
     }
 
     @Test
-    void updateUserProfileSuccessTest() {
+    void updateUserProfileTest_success() {
         when(userProfileRepository.findByUserId(Initializer.TEST_ID))
                 .thenReturn(Optional.of(userProfile));
         when(userProfileRepository.save(userProfile)).thenReturn(userProfile);
@@ -110,12 +110,12 @@ public class UserProfileServiceImplTest {
                 Initializer.TEST_ID, userProfileRequestDto);
 
         assertNotNull(response);
-        verify(userProfileMapper).updateEntityFromDto(userProfileRequestDto, userProfile);
-        verify(userProfileRepository).save(userProfile);
+        verify(userProfileMapper,times(1)).updateEntityFromDto(userProfileRequestDto, userProfile);
+        verify(userProfileRepository, times(1)).save(userProfile);
     }
 
     @Test
-    void updateUserProfileWhenProfileNotFoundTest() {
+    void updateUserProfileTest_profileNotFound() {
         when(userProfileRepository.findByUserId(Initializer.TEST_ID))
                 .thenReturn(Optional.empty());
 
@@ -124,17 +124,17 @@ public class UserProfileServiceImplTest {
     }
 
     @Test
-    void deleteUserProfileSuccessTest() {
+    void deleteUserProfileTest_success() {
         when(userProfileRepository.findByUserId(Initializer.TEST_ID))
                 .thenReturn(Optional.of(userProfile));
 
         userProfileService.deleteUserProfile(Initializer.TEST_ID);
 
-        verify(userProfileRepository).delete(userProfile);
+        verify(userProfileRepository, times(1)).delete(userProfile);
     }
 
     @Test
-    void deleteUserProfileWhenProfileNotFoundTest() {
+    void deleteUserProfileTest_profileNotFound() {
         when(userProfileRepository.findByUserId(Initializer.TEST_ID))
                 .thenReturn(Optional.empty());
 

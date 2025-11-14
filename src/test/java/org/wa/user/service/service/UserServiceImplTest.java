@@ -27,12 +27,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
-
     @Mock
     private UserRepository userRepository;
 
@@ -70,7 +70,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getAllUsersSuccessTest() {
+    void getAllUsersTest_success() {
         when(userRepository.findAll(pageable)).thenReturn(userPage);
         when(userMapper.toShortInfoDto(user)).thenReturn(userShortInfoDto);
 
@@ -78,11 +78,11 @@ public class UserServiceImplTest {
 
         assertNotNull(response);
         assertEquals(1, response.getContent().size());
-        verify(userRepository).findAll(pageable);
+        verify(userRepository, times(1)).findAll(pageable);
     }
 
     @Test
-    void getNonDeletedUsersSuccessTest() {
+    void getNonDeletedUsersTest_success() {
         when(userRepository.findByStatusNot(Status.DELETED, pageable)).thenReturn(userPage);
         when(userMapper.toShortInfoDto(user)).thenReturn(userShortInfoDto);
 
@@ -90,11 +90,11 @@ public class UserServiceImplTest {
 
         assertNotNull(response);
         assertEquals(1, response.getContent().size());
-        verify(userRepository).findByStatusNot(Status.DELETED, pageable);
+        verify(userRepository, times(1)).findByStatusNot(Status.DELETED, pageable);
     }
 
     @Test
-    void getUserByIdSuccessTest() {
+    void getUserByIdTest_success() {
         when(userRepository.findById(Initializer.TEST_ID)).thenReturn(Optional.of(user));
         when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
 
@@ -103,11 +103,11 @@ public class UserServiceImplTest {
         assertNotNull(response);
         assertEquals(Initializer.TEST_ID, response.getId());
         assertEquals(Initializer.TEST_EMAIL, response.getEmail());
-        verify(userRepository).findById(Initializer.TEST_ID);
+        verify(userRepository, times(1)).findById(Initializer.TEST_ID);
     }
 
     @Test
-    void getUserByIdWhenUserNotFoundTest() {
+    void getUserByIdTest_userNotFound() {
         when(userRepository.findById(Initializer.TEST_ID)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -115,7 +115,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void getUserByIdWhenUserDeletedTest() {
+    void getUserByIdTest_userDeleted() {
         when(userRepository.findById(Initializer.TEST_ID)).thenReturn(Optional.of(deletedUser));
 
         assertThrows(ResourceNotFoundException.class,
@@ -123,7 +123,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void createUserSuccessTest() {
+    void createUserTest_success() {
         when(userRepository.existsByEmail(Initializer.TEST_EMAIL)).thenReturn(false);
         when(userRepository.existsByPhone(Initializer.TEST_PHONE)).thenReturn(false);
         when(userMapper.toEntity(createDto)).thenReturn(user);
@@ -134,11 +134,11 @@ public class UserServiceImplTest {
 
         assertNotNull(response);
         assertEquals(Status.ACTIVE, user.getStatus());
-        verify(userRepository).save(user);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
-    void createUserWhenEmailExistsTest() {
+    void createUserTest_emailExists() {
         when(userRepository.existsByEmail(Initializer.TEST_EMAIL)).thenReturn(true);
 
         assertThrows(AttributeDuplicateException.class,
@@ -146,7 +146,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void createUserWhenPhoneExistsTest() {
+    void createUserTest_phoneExists() {
         when(userRepository.existsByEmail(Initializer.TEST_EMAIL)).thenReturn(false);
         when(userRepository.existsByPhone(Initializer.TEST_PHONE)).thenReturn(true);
 
@@ -155,7 +155,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void updateUserSuccessTest() {
+    void updateUserTest_success() {
         when(userRepository.findById(Initializer.TEST_ID)).thenReturn(Optional.of(user));
         when(userRepository.existsByEmailAndIdNot("new@email.com", Initializer.TEST_ID))
                 .thenReturn(false);
@@ -167,12 +167,12 @@ public class UserServiceImplTest {
         UserResponseDto response = userService.updateUser(Initializer.TEST_ID, updateDtoWithNewValues);
 
         assertNotNull(response);
-        verify(userMapper).updateEntityFromDto(updateDtoWithNewValues, user);
-        verify(userRepository).save(user);
+        verify(userMapper, times(1)).updateEntityFromDto(updateDtoWithNewValues, user);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
-    void updateUserWhenUserNotFoundTest() {
+    void updateUserTest_userNotFound() {
         when(userRepository.findById(Initializer.TEST_ID)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
@@ -180,7 +180,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void updateUserWhenEmailExistsTest() {
+    void updateUserTest_emailExists() {
         when(userRepository.findById(Initializer.TEST_ID)).thenReturn(Optional.of(user));
         when(userRepository.existsByEmailAndIdNot("existing@email.com", Initializer.TEST_ID))
                 .thenReturn(true);
@@ -190,27 +190,27 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void deleteUserSuccessTest() {
+    void deleteUserTest_success() {
         when(userRepository.findById(Initializer.TEST_ID)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
         userService.deleteUser(Initializer.TEST_ID);
 
         assertEquals(Status.DELETED, user.getStatus());
-        verify(userRepository).save(user);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
-    void hardDeleteUserSuccessTest() {
+    void hardDeleteUserTest_success() {
         when(userRepository.existsById(Initializer.TEST_ID)).thenReturn(true);
 
         userService.hardDeleteUser(Initializer.TEST_ID);
 
-        verify(userRepository).deleteById(Initializer.TEST_ID);
+        verify(userRepository, times(1)).deleteById(Initializer.TEST_ID);
     }
 
     @Test
-    void hardDeleteUserWhenUserNotFoundTest() {
+    void hardDeleteUserTest_userNotFound() {
         when(userRepository.existsById(Initializer.TEST_ID)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
@@ -218,7 +218,7 @@ public class UserServiceImplTest {
     }
 
     @Test
-    void updateUserStatusSuccessTest() {
+    void updateUserStatusTest_success() {
         when(userRepository.findById(Initializer.TEST_ID)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
@@ -227,16 +227,16 @@ public class UserServiceImplTest {
 
         assertNotNull(response);
         assertEquals(Status.ACTIVE, user.getStatus());
-        verify(userRepository).save(user);
+        verify(userRepository, times(1)).save(user);
     }
 
     @Test
-    void userExistsSuccessTest() {
+    void userExistsTest_success() {
         when(userRepository.existsById(Initializer.TEST_ID)).thenReturn(true);
 
         boolean exists = userService.userExists(Initializer.TEST_ID);
 
         assertTrue(exists);
-        verify(userRepository).existsById(Initializer.TEST_ID);
+        verify(userRepository, times(1)).existsById(Initializer.TEST_ID);
     }
 }

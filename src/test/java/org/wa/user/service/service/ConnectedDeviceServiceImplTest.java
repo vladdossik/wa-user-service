@@ -22,12 +22,12 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ConnectedDeviceServiceImplTest {
-
     @Mock
     private ConnectedDeviceRepository deviceRepository;
 
@@ -56,7 +56,7 @@ public class ConnectedDeviceServiceImplTest {
     }
 
     @Test
-    void getUserDevicesSuccessTest() {
+    void getUserDevicesTest_success() {
         when(userService.userExists(Initializer.TEST_ID)).thenReturn(true);
         when(deviceRepository.findByUserId(Initializer.TEST_ID)).thenReturn(List.of(device));
         when(deviceMapper.toResponseDtoList(List.of(device))).thenReturn(List.of(deviceResponseDto));
@@ -65,11 +65,11 @@ public class ConnectedDeviceServiceImplTest {
 
         assertNotNull(response);
         assertEquals(List.of(deviceResponseDto), response);
-        verify(deviceRepository).findByUserId(Initializer.TEST_ID);
+        verify(deviceRepository, times(1)).findByUserId(Initializer.TEST_ID);
     }
 
     @Test
-    void getUserDevicesWhenUserNotFoundTest() {
+    void getUserDevicesTest_userNotFound() {
         when(userService.userExists(Initializer.TEST_ID)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
@@ -77,7 +77,7 @@ public class ConnectedDeviceServiceImplTest {
     }
 
     @Test
-    void addUserDeviceSuccessTest() {
+    void addUserDeviceTest_success() {
         when(userService.getUserEntity(Initializer.TEST_ID)).thenReturn(user);
         when(deviceRepository.existsByDeviceId(Initializer.TEST_DEVICE_ID)).thenReturn(false);
         when(deviceMapper.setDeviceDefaults(deviceCreateDto, user)).thenReturn(device);
@@ -88,13 +88,13 @@ public class ConnectedDeviceServiceImplTest {
                 Initializer.TEST_ID, deviceCreateDto);
 
         assertNotNull(response);
-        verify(deviceMapper).setDeviceDefaults(deviceCreateDto, user);
-        verify(deviceRepository).save(device);
-        verify(deviceMapper).toResponseDto(device);
+        verify(deviceMapper, times(1)).setDeviceDefaults(deviceCreateDto, user);
+        verify(deviceRepository, times(1)).save(device);
+        verify(deviceMapper, times(1)).toResponseDto(device);
     }
 
     @Test
-    void addUserDeviceWhenDeviceExistsTest() {
+    void addUserDeviceTest_deviceExists() {
         when(userService.getUserEntity(Initializer.TEST_ID)).thenReturn(user);
         when(deviceRepository.existsByDeviceId(Initializer.TEST_DEVICE_ID)).thenReturn(true);
 
@@ -103,7 +103,7 @@ public class ConnectedDeviceServiceImplTest {
     }
 
     @Test
-    void addUserDeviceWhenUserNotFoundTest() {
+    void addUserDeviceTest_userNotFound() {
         when(userService.getUserEntity(Initializer.TEST_ID))
                 .thenThrow(new ResourceNotFoundException("User not found"));
 
@@ -112,7 +112,7 @@ public class ConnectedDeviceServiceImplTest {
     }
 
     @Test
-    void updateUserDeviceSuccessTest() {
+    void updateUserDeviceTest_success() {
         when(userService.userExists(Initializer.TEST_ID)).thenReturn(true);
         when(deviceRepository.findByUserIdAndDeviceId(Initializer.TEST_ID, Initializer.TEST_ID))
                 .thenReturn(Optional.of(device));
@@ -123,12 +123,12 @@ public class ConnectedDeviceServiceImplTest {
                 Initializer.TEST_ID, Initializer.TEST_ID, deviceUpdateDto);
 
         assertNotNull(response);
-        verify(deviceMapper).updateEntityFromDto(deviceUpdateDto, device);
-        verify(deviceRepository).save(device);
+        verify(deviceMapper, times(1)).updateEntityFromDto(deviceUpdateDto, device);
+        verify(deviceRepository, times(1)).save(device);
     }
 
     @Test
-    void updateUserDeviceWhenUserNotFoundTest() {
+    void updateUserDeviceTest_userNotFound() {
         when(userService.userExists(Initializer.TEST_ID)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
@@ -137,7 +137,7 @@ public class ConnectedDeviceServiceImplTest {
     }
 
     @Test
-    void updateUserDeviceWhenDeviceNotFoundTest() {
+    void updateUserDeviceTest_deviceNotFound() {
         when(userService.userExists(Initializer.TEST_ID)).thenReturn(true);
         when(deviceRepository.findByUserIdAndDeviceId(Initializer.TEST_ID, Initializer.TEST_ID))
                 .thenReturn(Optional.empty());
@@ -148,7 +148,7 @@ public class ConnectedDeviceServiceImplTest {
     }
 
     @Test
-    void syncDeviceSuccessTest() {
+    void syncDeviceTest_success() {
         when(deviceRepository.findByUserIdAndDeviceId(Initializer.TEST_ID, Initializer.TEST_ID))
                 .thenReturn(Optional.of(device));
         when(deviceRepository.save(device)).thenReturn(device);
@@ -159,11 +159,11 @@ public class ConnectedDeviceServiceImplTest {
 
         assertNotNull(response);
         assertNotNull(device.getLastSyncAt());
-        verify(deviceRepository).save(device);
+        verify(deviceRepository, times(1)).save(device);
     }
 
     @Test
-    void syncDeviceWhenDeviceNotFoundTest() {
+    void syncDeviceTest_deviceNotFound() {
         when(deviceRepository.findByUserIdAndDeviceId(Initializer.TEST_ID, Initializer.TEST_ID))
                 .thenReturn(Optional.empty());
 
@@ -172,17 +172,17 @@ public class ConnectedDeviceServiceImplTest {
     }
 
     @Test
-    void deleteDeviceSuccessTest() {
+    void deleteDeviceTest_success() {
         when(deviceRepository.findByUserIdAndDeviceId(Initializer.TEST_ID, Initializer.TEST_ID))
                 .thenReturn(Optional.of(device));
 
         connectedDeviceService.deleteDevice(Initializer.TEST_ID, Initializer.TEST_ID);
 
-        verify(deviceRepository).delete(device);
+        verify(deviceRepository, times(1)).delete(device);
     }
 
     @Test
-    void deleteDeviceWhenNotFoundTest() {
+    void deleteDeviceTest_deviceNotFound() {
         when(deviceRepository.findByUserIdAndDeviceId(Initializer.TEST_ID, Initializer.TEST_ID))
                 .thenReturn(Optional.empty());
 
