@@ -113,14 +113,12 @@
                         </goals>
                         <configuration>
                             <excludes>
-                                <exclude>**/config/**</exclude>
                                 <exclude>**/controller/**</exclude>
                                 <exclude>**/dto/**</exclude>
+                                <exclude>**/entity/**</exclude>
                                 <exclude>**/exception/**</exclude>
-                                <exclude>**/model/**</exclude>
                                 <exclude>**/repository/**</exclude>
-                                <exclude>**/security/**</exclude>
-                                <exclude>**/*Main.class/</exclude>
+                                <exclude>**/*Main.class</exclude>
                             </excludes>
                         </configuration>
                     </execution>
