@@ -53,37 +53,37 @@ public class UserProfileServiceImplTest {
 
     @Test
     void getUserProfileTest_success() {
-        when(userProfileRepository.findByUserId(Initializer.TEST_ID))
+        when(userProfileRepository.findByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
         when(userProfileMapper.toResponseDto(userProfile)).thenReturn(userProfileResponseDto);
 
-        UserProfileResponseDto response = userProfileService.getUserProfile(Initializer.TEST_ID);
+        UserProfileResponseDto response = userProfileService.getUserProfile(1L);
 
         assertNotNull(response);
-        assertEquals(Initializer.TEST_FIRST_NAME, response.getFirstName());
-        assertEquals(Initializer.TEST_LAST_NAME, response.getLastName());
-        verify(userProfileRepository, times(1)).findByUserId(Initializer.TEST_ID);
+        assertEquals("John", response.getFirstName());
+        assertEquals("Smith", response.getLastName());
+        verify(userProfileRepository, times(1)).findByUserId(1L);
     }
 
     @Test
     void getUserProfileTest_profileNotFound() {
-        when(userProfileRepository.findByUserId(Initializer.TEST_ID))
+        when(userProfileRepository.findByUserId(1L))
                 .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> userProfileService.getUserProfile(Initializer.TEST_ID));
+                () -> userProfileService.getUserProfile(1L));
     }
 
     @Test
     void createUserProfileTest_success() {
-        when(userService.getUserEntity(Initializer.TEST_ID)).thenReturn(user);
-        when(userProfileRepository.existsByUserId(Initializer.TEST_ID)).thenReturn(false);
+        when(userService.getUserEntity(1L)).thenReturn(user);
+        when(userProfileRepository.existsByUserId(1L)).thenReturn(false);
         when(userProfileMapper.toEntity(userProfileRequestDto)).thenReturn(userProfile);
         when(userProfileRepository.save(userProfile)).thenReturn(userProfile);
         when(userProfileMapper.toResponseDto(userProfile)).thenReturn(userProfileResponseDto);
 
         UserProfileResponseDto response = userProfileService.createUserProfile(
-                Initializer.TEST_ID, userProfileRequestDto);
+                1L, userProfileRequestDto);
 
         assertNotNull(response);
         assertEquals(user, userProfile.getUser());
@@ -92,22 +92,22 @@ public class UserProfileServiceImplTest {
 
     @Test
     void createUserProfileTest_profileAlreadyExists() {
-        when(userService.getUserEntity(Initializer.TEST_ID)).thenReturn(user);
-        when(userProfileRepository.existsByUserId(Initializer.TEST_ID)).thenReturn(true);
+        when(userService.getUserEntity(1L)).thenReturn(user);
+        when(userProfileRepository.existsByUserId(1L)).thenReturn(true);
 
         assertThrows(UserProfileAlreadyExistsException.class,
-                () -> userProfileService.createUserProfile(Initializer.TEST_ID, userProfileRequestDto));
+                () -> userProfileService.createUserProfile(1L, userProfileRequestDto));
     }
 
     @Test
     void updateUserProfileTest_success() {
-        when(userProfileRepository.findByUserId(Initializer.TEST_ID))
+        when(userProfileRepository.findByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
         when(userProfileRepository.save(userProfile)).thenReturn(userProfile);
         when(userProfileMapper.toResponseDto(userProfile)).thenReturn(userProfileResponseDto);
 
         UserProfileResponseDto response = userProfileService.updateUserProfile(
-                Initializer.TEST_ID, userProfileRequestDto);
+                1L, userProfileRequestDto);
 
         assertNotNull(response);
         verify(userProfileMapper,times(1)).updateEntityFromDto(userProfileRequestDto, userProfile);
@@ -116,29 +116,29 @@ public class UserProfileServiceImplTest {
 
     @Test
     void updateUserProfileTest_profileNotFound() {
-        when(userProfileRepository.findByUserId(Initializer.TEST_ID))
+        when(userProfileRepository.findByUserId(1L))
                 .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> userProfileService.updateUserProfile(Initializer.TEST_ID, userProfileRequestDto));
+                () -> userProfileService.updateUserProfile(1L, userProfileRequestDto));
     }
 
     @Test
     void deleteUserProfileTest_success() {
-        when(userProfileRepository.findByUserId(Initializer.TEST_ID))
+        when(userProfileRepository.findByUserId(1L))
                 .thenReturn(Optional.of(userProfile));
 
-        userProfileService.deleteUserProfile(Initializer.TEST_ID);
+        userProfileService.deleteUserProfile(1L);
 
         verify(userProfileRepository, times(1)).delete(userProfile);
     }
 
     @Test
     void deleteUserProfileTest_profileNotFound() {
-        when(userProfileRepository.findByUserId(Initializer.TEST_ID))
+        when(userProfileRepository.findByUserId(1L))
                 .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> userProfileService.deleteUserProfile(Initializer.TEST_ID));
+                () -> userProfileService.deleteUserProfile(1L));
     }
 }

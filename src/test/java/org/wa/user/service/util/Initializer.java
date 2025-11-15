@@ -29,18 +29,18 @@ import java.util.List;
 
 public class Initializer {
 
-    public static final Long TEST_ID = 1L;
-    public static final String TEST_EMAIL = "test@email.com";
-    public static final String TEST_PHONE = "+79164538676";
-    public static final String TEST_DEVICE_ID = "device-123";
-    public static final String TEST_FIRST_NAME = "John";
-    public static final String TEST_LAST_NAME = "Smith";
-    public static final String TEST_DEVICE_MODEL = "Model X";
-    public static final ConnectedDeviceType TEST_DEVICE_TYPE = ConnectedDeviceType.GOOGLE;
-    public static final LocalDateTime TEST_BIRTHDAY = LocalDateTime.now().minusYears(20);
-    public static final Gender TEST_GENDER = Gender.MALE;
-    public static final Integer TEST_HEIGHT = 180;
-    public static final Integer TEST_WEIGHT = 75;
+    protected static final Long TEST_ID = 1L;
+    protected static final String TEST_EMAIL = "test@email.com";
+    protected static final String TEST_PHONE = "+79164538676";
+    protected static final String TEST_DEVICE_ID = "device-123";
+    protected static final String TEST_FIRST_NAME = "John";
+    protected static final String TEST_LAST_NAME = "Smith";
+    protected static final String TEST_DEVICE_MODEL = "Model X";
+    protected static final ConnectedDeviceType TEST_DEVICE_TYPE = ConnectedDeviceType.GOOGLE;
+    protected static final LocalDateTime TEST_BIRTHDAY = LocalDateTime.now().minusYears(20);
+    protected static final Gender TEST_GENDER = Gender.MALE;
+    protected static final Integer TEST_HEIGHT = 180;
+    protected static final Integer TEST_WEIGHT = 75;
 
     public static UserEntity createTestUser() {
         UserEntity user = new UserEntity();
