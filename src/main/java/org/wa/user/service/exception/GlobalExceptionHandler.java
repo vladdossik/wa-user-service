@@ -29,7 +29,7 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(AccessException.class)
-    public ResponseEntity<ErrorResponse> handleUserProfileAlreadyExists(AccessException ex) {
+    public ResponseEntity<ErrorResponse> handleAccess(AccessException ex) {
         return buildResponse(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
     }
 
