@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.dto.device.ConnectedDeviceCreateDto;
 import org.wa.user.service.dto.device.ConnectedDeviceResponseDto;
 import org.wa.user.service.dto.device.ConnectedDeviceUpdateDto;
@@ -26,11 +27,13 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
     private final ConnectedDeviceRepository deviceRepository;
     private final UserService userService;
     private final ConnectedDeviceMapper deviceMapper;
+    private final UserAccessService accessService;
 
     @Override
     @Transactional(readOnly = true)
     public List<ConnectedDeviceResponseDto> getUserDevices(Long userId) {
         log.info("Getting devices for user id: {}", userId);
+        accessService.checkUserAccess(userId);
 
         if (!userService.userExists(userId)) {
             log.warn("User not found when getting devices for user id: {}", userId);
@@ -48,6 +51,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
     @Transactional
     public ConnectedDeviceResponseDto addUserDevice(Long id, ConnectedDeviceCreateDto deviceCreateDto) {
         log.info("Adding new device for user id: {}, device ID: {}", id, deviceCreateDto.getDeviceId());
+        accessService.checkUserAccess(id);
 
         UserEntity userEntity = userService.getUserEntity(id);
 
@@ -73,6 +77,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
     public ConnectedDeviceResponseDto updateUserDevice(Long userId, Long deviceId,
                                                        ConnectedDeviceUpdateDto deviceUpdateDto) {
         log.info("Updating device with id: {} for user id: {}", deviceId, userId);
+        accessService.checkUserAccess(userId);
 
         if (!userService.userExists(userId)) {
             log.warn("User not found when updating device for user id: {}", userId);
@@ -94,6 +99,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
     @Transactional
     public void deleteDevice(Long userId, Long deviceId) {
         log.info("Deleting device with id: {} for user id: {}", deviceId, userId);
+        accessService.checkUserAccess(userId);
 
         deviceRepository.delete(getDevice(userId, deviceId));
         log.info("Successfully deleted device with id: {} for user id: {}", deviceId, userId);
@@ -103,6 +109,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
     @Transactional
     public ConnectedDeviceResponseDto syncDevice(Long userId, Long deviceId) {
         log.info("Synchronization of device with id: {} for user id: {}", deviceId, userId);
+        accessService.checkUserAccess(userId);
 
         ConnectedDeviceEntity device = getDevice(userId, deviceId);
         device.setLastSyncAt(OffsetDateTime.now(ZoneOffset.UTC));

@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.dto.profile.UserProfileRequestDto;
 import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.exception.ResourceNotFoundException;
@@ -22,11 +23,13 @@ public class UserProfileServiceImpl implements UserProfileService {
     private final UserProfileRepository userProfileRepository;
     private final UserService userService;
     private final UserProfileMapper userProfileMapper;
+    private final UserAccessService accessService;
 
     @Override
     @Transactional(readOnly = true)
     public UserProfileResponseDto getUserProfile(Long userId) {
         log.info("Getting user profile for user id: {}", userId);
+        accessService.checkUserAccess(userId);
 
         UserProfileEntity profile = getProfile(userId);
         UserProfileResponseDto response = userProfileMapper.toResponseDto(profile);
@@ -39,6 +42,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Transactional
     public UserProfileResponseDto createUserProfile(Long userId, UserProfileRequestDto userProfileCreateDto) {
         log.info("Creating user profile for user id: {}", userId);
+        accessService.checkUserAccess(userId);
 
         UserEntity userEntity = userService.getUserEntity(userId);
         if (userProfileRepository.existsByUserId(userId)) {
@@ -63,6 +67,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Transactional
     public UserProfileResponseDto updateUserProfile(Long userId, UserProfileRequestDto userProfileUpdateDto) {
         log.info("Updating user profile for user id: {}", userId);
+        accessService.checkUserAccess(userId);
 
         log.debug("Mapping UserProfileRequestDto to existing UserProfileEntity");
         userProfileMapper.updateEntityFromDto(userProfileUpdateDto, getProfile(userId));
@@ -78,6 +83,7 @@ public class UserProfileServiceImpl implements UserProfileService {
     @Transactional
     public void deleteUserProfile(Long userId) {
         log.info("Deleting user profile for user id: {}", userId);
+        accessService.checkUserAccess(userId);
 
         userProfileRepository.delete(getProfile(userId));
         log.info("Successfully deleted user profile for user id: {}", userId);

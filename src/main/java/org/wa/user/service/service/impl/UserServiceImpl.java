@@ -6,6 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.dto.common.PageResponse;
 import org.wa.user.service.dto.user.UserCreateDto;
 import org.wa.user.service.dto.user.UserResponseDto;
@@ -28,6 +29,7 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final UserAccessService accessService;
 
     @Override
     public PageResponse<UserShortInfoDto> getAllUsers(Pageable pageable) {
@@ -60,7 +62,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponseDto getUserById(Long userId) {
         log.info("Getting user by id: {}", userId);
-
+        accessService.checkUserAccess(userId);
         UserEntity userEntity = getUserEntity(userId);
 
         if (userEntity.getStatus() == Status.DELETED) {
@@ -107,6 +109,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponseDto updateUser(Long userId, UserUpdateDto updateDto) {
         log.info("Updating user with id: {}", userId);
+        accessService.checkUserAccess(userId);
 
         UserEntity userEntity = getUserEntity(userId);
 
@@ -145,6 +148,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void deleteUser(Long userId) {
         log.info("Deleting user with id: {}", userId);
+        accessService.checkUserAccess(userId);
 
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setStatus(Status.DELETED);
@@ -157,6 +161,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void hardDeleteUser(Long userId) {
         log.info("Hard deleting user with id: {}", userId);
+        accessService.checkUserAccess(userId);
 
         if (!userRepository.existsById(userId)) {
             log.warn("Attempt to hard delete non-existent user with id: {}", userId);
@@ -171,6 +176,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public UserResponseDto updateUserStatus(Long userId, UserStatusUpdateDto updateDto) {
         log.info("Updating status for user id: {} to {}", userId, updateDto.getStatus());
+        accessService.checkUserAccess(userId);
 
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setStatus(updateDto.getStatus());

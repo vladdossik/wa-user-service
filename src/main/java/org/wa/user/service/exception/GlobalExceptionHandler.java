@@ -28,6 +28,11 @@ public class GlobalExceptionHandler {
         return buildResponse(ex.getMessage(), HttpStatus.CONFLICT);
     }
 
+    @ExceptionHandler(AccessException.class)
+    public ResponseEntity<ErrorResponse> handleUserProfileAlreadyExists(AccessException ex) {
+        return buildResponse(ex.getMessage(), HttpStatus.NOT_ACCEPTABLE);
+    }
+
     private ResponseEntity<ErrorResponse> buildResponse(String message, HttpStatus status) {
         return ResponseEntity
                 .status(status)
