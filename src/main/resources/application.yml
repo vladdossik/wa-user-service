@@ -26,10 +26,5 @@ server:
 
 integration:
   auth-service:
-    base-url: ${integration.auth-service.base-url}
-    timeout: ${integration.auth-service.timeout}
-
-auth-service:
-  login-endpoint: ${auth-service.login-endpoint}
-  accessToken-endpoint: ${auth-service.accessToken-endpoint}
-  refreshToken-endpoint: ${auth-service.refreshToken-endpoint}
+    base-url: http://localhost:8080
+    timeout: 5000

@@ -18,12 +18,8 @@ public class UserAccessService {
     private final UserRepository userRepository;
 
     public void checkUserAccess(Long targetUserId) {
-        if (isAdmin()) {
-            log.debug("Admin access granted to user {}", targetUserId);
-            return;
-        }
-
         Long userId = getUserId();
+
         if (!userId.equals(targetUserId)) {
             log.warn("Access denied: user {} tried to access user {}", userId, targetUserId);
             throw new AccessException("Access denied to user data");
@@ -31,12 +27,12 @@ public class UserAccessService {
         log.debug("User access granted to own data {}", targetUserId);
     }
 
-    private boolean isAdmin() {
+    public boolean isAdmin() {
         return AuthContextHolder.getRoles().stream()
                 .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    private Long getUserId() {
+    public Long getUserId() {
         String email = AuthContextHolder.getEmail();
 
         return userRepository.findByEmail(email)
