@@ -2,10 +2,12 @@ spring:
   application:
     name: wa-user-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/wa_user_service_db
-    username: postgres
-    password: 4589
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
+  config:
+    import: optional:file:.env[.properties]
 
   jpa:
     hibernate:
@@ -21,3 +23,8 @@ spring:
 
 server:
   port: 8081
+
+integration:
+  auth-service:
+    base-url: http://localhost:8080
+    timeout: 5000

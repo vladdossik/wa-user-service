@@ -7,6 +7,7 @@ import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.entity.enumeration.Status;
+import java.util.Optional;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
@@ -22,4 +23,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
     boolean existsByPhoneAndIdNot(String phone, Long id);
 
     Page<UserEntity> findByStatusNot(Status status, Pageable pageable);
+
+    Optional<UserEntity> findByEmail(String email);
 }
