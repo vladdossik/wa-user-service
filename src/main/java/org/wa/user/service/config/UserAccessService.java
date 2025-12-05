@@ -17,7 +17,13 @@ public class UserAccessService {
 
     private final UserRepository userRepository;
 
-    public void checkUserAccess(Long targetUserId) {
+    public void checkUser(Long userId) {
+        if (!isAdmin()) {
+            checkUserAccess(userId);
+        }
+    }
+
+    private void checkUserAccess(Long targetUserId) {
         Long userId = getUserId();
 
         if (!userId.equals(targetUserId)) {
@@ -27,12 +33,12 @@ public class UserAccessService {
         log.debug("User access granted to own data {}", targetUserId);
     }
 
-    public boolean isAdmin() {
+    private boolean isAdmin() {
         return AuthContextHolder.getRoles().stream()
                 .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    public Long getUserId() {
+    private Long getUserId() {
         String email = AuthContextHolder.getEmail();
 
         return userRepository.findByEmail(email)

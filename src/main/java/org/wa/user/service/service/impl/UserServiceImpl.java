@@ -63,9 +63,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto getUserById(Long userId) {
         log.info("Getting user by id: {}", userId);
 
-        if (!accessService.isAdmin()) {
-            accessService.checkUserAccess(userId);
-        }
+        accessService.checkUser(userId);
 
         UserEntity userEntity = getUserEntity(userId);
 
@@ -114,9 +112,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto updateUser(Long userId, UserUpdateDto updateDto) {
         log.info("Updating user with id: {}", userId);
 
-        if (!accessService.isAdmin()) {
-            accessService.checkUserAccess(userId);
-        }
+        accessService.checkUser(userId);
 
         UserEntity userEntity = getUserEntity(userId);
 
@@ -156,9 +152,7 @@ public class UserServiceImpl implements UserService {
     public void deleteUser(Long userId) {
         log.info("Deleting user with id: {}", userId);
 
-        if (!accessService.isAdmin()) {
-            accessService.checkUserAccess(userId);
-        }
+        accessService.checkUser(userId);
 
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setStatus(Status.DELETED);
@@ -172,9 +166,7 @@ public class UserServiceImpl implements UserService {
     public void hardDeleteUser(Long userId) {
         log.info("Hard deleting user with id: {}", userId);
 
-        if (!accessService.isAdmin()) {
-            accessService.checkUserAccess(userId);
-        }
+        accessService.checkUser(userId);
 
         if (!userRepository.existsById(userId)) {
             log.warn("Attempt to hard delete non-existent user with id: {}", userId);
@@ -190,9 +182,7 @@ public class UserServiceImpl implements UserService {
     public UserResponseDto updateUserStatus(Long userId, UserStatusUpdateDto updateDto) {
         log.info("Updating status for user id: {} to {}", userId, updateDto.getStatus());
 
-        if (!accessService.isAdmin()) {
-            accessService.checkUserAccess(userId);
-        }
+        accessService.checkUser(userId);
 
         UserEntity userEntity = getUserEntity(userId);
         userEntity.setStatus(updateDto.getStatus());
