@@ -1,6 +1,5 @@
 package org.wa.user.service.config;
 
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -8,7 +7,6 @@ import org.wa.auth.lib.util.AuthContextHolder;
 import org.wa.user.service.exception.AccessException;
 import org.wa.user.service.exception.ResourceNotFoundException;
 import org.wa.user.service.repository.UserRepository;
-
 
 @Slf4j
 @Component
