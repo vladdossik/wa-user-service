@@ -1,5 +1,8 @@
 package org.wa.user.service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,16 +22,20 @@ import org.wa.user.service.service.UserProfileService;
 @RestController
 @RequestMapping("/v1/users/{userId}/profile")
 @RequiredArgsConstructor
+@Tag(name = "Profiles", description = "API для управления профилями пользователей")
+@SecurityRequirement(name = "bearerAuth")
 public class UserProfileController {
     private final UserProfileService userProfileService;
 
     @GetMapping
+    @Operation(summary = "Получить профиль")
     public UserProfileResponseDto getUserProfile(@PathVariable Long userId) {
         return userProfileService.getUserProfile(userId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Создать профиль")
     public UserProfileResponseDto createUserProfile(
             @PathVariable Long userId,
             @Valid @RequestBody UserProfileRequestDto profileDto) {
@@ -36,6 +43,7 @@ public class UserProfileController {
     }
 
     @PutMapping
+    @Operation(summary = "Обновить профиль")
     public UserProfileResponseDto updateUserProfile(
             @PathVariable Long userId,
             @Valid @RequestBody UserProfileRequestDto profileDto) {
@@ -44,6 +52,7 @@ public class UserProfileController {
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @Operation(summary = "Удалить профиль")
     public void deleteUserProfile(@PathVariable Long userId) {
         userProfileService.deleteUserProfile(userId);
     }

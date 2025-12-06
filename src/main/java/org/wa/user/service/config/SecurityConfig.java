@@ -40,6 +40,14 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "v1/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "v1/users/*/permanent").hasRole("ADMIN")
 
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html",
+                                "/swagger-resources/**",
+                                "/webjars/**"
+                        ).permitAll()
+
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();

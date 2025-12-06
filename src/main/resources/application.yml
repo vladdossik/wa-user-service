@@ -28,3 +28,9 @@ integration:
   auth-service:
     base-url: http://localhost:8080
     timeout: 5000
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs

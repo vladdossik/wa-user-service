@@ -23,6 +23,19 @@ public class UserAccessService {
         }
     }
 
+    public boolean isAdmin() {
+        return AuthContextHolder.getRoles().stream()
+                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    public Long getUserId() {
+        String email = AuthContextHolder.getEmail();
+
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
+                .getId();
+    }
+
     private void checkUserAccess(Long targetUserId) {
         Long userId = getUserId();
 
@@ -31,18 +44,5 @@ public class UserAccessService {
             throw new AccessException("Access denied to user data");
         }
         log.debug("User access granted to own data {}", targetUserId);
-    }
-
-    private boolean isAdmin() {
-        return AuthContextHolder.getRoles().stream()
-                .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
-    }
-
-    private Long getUserId() {
-        String email = AuthContextHolder.getEmail();
-
-        return userRepository.findByEmail(email)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found"))
-                .getId();
     }
 }
