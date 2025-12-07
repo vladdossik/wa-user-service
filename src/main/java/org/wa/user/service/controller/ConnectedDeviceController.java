@@ -1,5 +1,8 @@
 package org.wa.user.service.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -22,16 +25,20 @@ import java.util.List;
 @RestController
 @RequestMapping("/v1/users/{userId}/devices")
 @RequiredArgsConstructor
+@Tag(name = "Devices", description = "API для управления устройствами пользователей")
+@SecurityRequirement(name = "bearerAuth")
 public class ConnectedDeviceController {
     private final ConnectedDeviceService devicesService;
 
     @GetMapping
+    @Operation(summary = "Получить устройства пользователя")
     public List<ConnectedDeviceResponseDto> getUserDevices(@PathVariable Long userId) {
         return devicesService.getUserDevices(userId);
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Добавить устройство")
     public ConnectedDeviceResponseDto addDevice(
             @PathVariable Long userId,
             @Valid @RequestBody ConnectedDeviceCreateDto deviceDto) {
@@ -39,6 +46,7 @@ public class ConnectedDeviceController {
     }
 
     @PutMapping("/{deviceId}")
+    @Operation(summary = "Обновить устройство")
     public ConnectedDeviceResponseDto updateDevice(
             @PathVariable Long userId,
             @PathVariable Long deviceId,
@@ -47,6 +55,7 @@ public class ConnectedDeviceController {
     }
 
     @PatchMapping("/{deviceId}/sync")
+    @Operation(summary = "Синхронизировать устройство")
     public ConnectedDeviceResponseDto syncDevice(
             @PathVariable Long userId,
             @PathVariable Long deviceId) {
@@ -54,6 +63,7 @@ public class ConnectedDeviceController {
     }
 
     @DeleteMapping("/{deviceId}")
+    @Operation(summary = "Удалить устройство")
     public void deleteDevice(@PathVariable Long userId,
                                              @PathVariable Long deviceId) {
         devicesService.deleteDevice(userId, deviceId);
