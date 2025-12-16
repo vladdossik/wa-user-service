@@ -33,10 +33,10 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(HttpMethod.POST, "v1/users").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/v1/users").permitAll()
 
-                        .requestMatchers(HttpMethod.GET, "v1/users").hasRole("ADMIN")
-                        .requestMatchers(HttpMethod.DELETE, "v1/users/*/permanent").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/v1/users").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/v1/users/*/permanent").hasRole("ADMIN")
 
                         .requestMatchers(
                                 "/swagger-ui/**",

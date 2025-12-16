@@ -1,0 +1,56 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025.10.30_003_create_connected_device_table
+      author: mihailov.pashka@yandex.ru
+      changes:
+        - createTable:
+            tableName: connected_device
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: user_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: device_type
+                  type: VARCHAR(20)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: device_id
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: device_model
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_active
+                  type: BOOLEAN
+                  defaultValueBoolean: true
+              - column:
+                  name: last_sync_at
+                  type: TIMESTAMP WITH TIME ZONE
+
+        - createSequence:
+            sequenceName: connected_device_seq
+            startValue: 1
+            incrementBy: 1
+
+        - addForeignKeyConstraint:
+            baseTableName: connected_device
+            baseColumnNames: user_id
+            referencedTableName: users
+            referencedColumnNames: id
+            constraintName: fk_connected_device_user
+            onDelete: CASCADE
+            onUpdate: CASCADE
