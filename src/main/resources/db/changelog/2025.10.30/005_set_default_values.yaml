@@ -4,17 +4,17 @@ databaseChangeLog:
       author: mihailov.pashka@yandex.ru
       changes:
         - addDefaultValue:
-            tableName: user
+            tableName: users
             columnName: status
             defaultValue: "ACTIVE"
 
         - addDefaultValue:
-            tableName: user
+            tableName: users
             columnName: created_at
             defaultValueComputed: CURRENT_TIMESTAMP
 
         - addDefaultValue:
-            tableName: user
+            tableName: users
             columnName: modified_at
             defaultValueComputed: CURRENT_TIMESTAMP
 
