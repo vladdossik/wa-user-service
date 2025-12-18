@@ -1,0 +1,17 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025.12.17_001_make_user_table_nullable_fields
+      author: givan3819@gmail.com
+      changes:
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: phone
+            columnDataType: VARCHAR(20)
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: birthday
+            columnDataType: TIMESTAMP
+        - dropNotNullConstraint:
+            tableName: users
+            columnName: gender
+            columnDataType: VARCHAR(10)

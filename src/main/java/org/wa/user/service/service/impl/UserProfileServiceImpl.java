@@ -39,12 +39,18 @@ public class UserProfileServiceImpl implements UserProfileService {
         return response;
     }
 
+    @Transactional
+    public UserProfileResponseDto validateUserAndCreate(Long userId, UserProfileRequestDto userProfileRequestDto) {
+        log.info("Starting user validation before profile create for user id: {}", userId);
+
+        accessService.checkUser(userId);
+        return createUserProfile(userId, userProfileRequestDto);
+    }
+
     @Override
     @Transactional
     public UserProfileResponseDto createUserProfile(Long userId, UserProfileRequestDto userProfileCreateDto) {
         log.info("Creating user profile for user id: {}", userId);
-
-        accessService.checkUser(userId);
 
         UserEntity userEntity = userService.getUserEntity(userId);
         if (userProfileRepository.existsByUserId(userId)) {

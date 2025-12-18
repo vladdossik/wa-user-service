@@ -39,7 +39,7 @@ public class UserProfileController {
     public UserProfileResponseDto createUserProfile(
             @PathVariable Long userId,
             @Valid @RequestBody UserProfileRequestDto profileDto) {
-        return userProfileService.createUserProfile(userId, profileDto);
+        return userProfileService.validateUserAndCreate(userId, profileDto);
     }
 
     @PutMapping
