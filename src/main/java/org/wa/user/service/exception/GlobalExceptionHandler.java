@@ -6,7 +6,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.wa.user.service.mapper.ErrorMapper;
-import org.wa.user.service.entity.ErrorResponse;
+import org.wa.user.service.dto.ErrorResponse;
 
 @RestControllerAdvice
 @RequiredArgsConstructor

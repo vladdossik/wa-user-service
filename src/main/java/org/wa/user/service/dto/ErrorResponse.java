@@ -1,10 +1,11 @@
-package org.wa.user.service.entity;
+package org.wa.user.service.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.Getter;
 import java.time.OffsetDateTime;
 
-@Getter
+@Data
 @AllArgsConstructor
 public class ErrorResponse {
     private String message;

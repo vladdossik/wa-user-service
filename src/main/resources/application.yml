@@ -19,8 +19,6 @@ spring:
     show-sql: true
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.yaml
-    analytics-enabled: true
-
 server:
   port: 8081
 
@@ -34,3 +32,10 @@ springdoc:
     path: /swagger-ui.html
   api-docs:
     path: /v3/api-docs
+
+jwt:
+  secret:
+    access: ${JWT_SECRET_ACCESS}
+    refresh: ${JWT_SECRET_REFRESH}
+  expiration-ms: ${JWT_EXPIRATION_MS}
+  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS}

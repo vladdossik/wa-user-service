@@ -17,7 +17,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.wa.auth.lib.security.JwtFilter;
 
 @Configuration
-@ComponentScan(basePackages = "org.wa")
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor

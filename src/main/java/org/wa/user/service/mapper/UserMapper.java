@@ -3,17 +3,14 @@ package org.wa.user.service.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
+
 import org.wa.user.service.dto.user.UserCreateDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserUpdateDto;
 import org.wa.user.service.entity.UserEntity;
 
-@Mapper(componentModel = "spring",
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        unmappedTargetPolicy = ReportingPolicy.ERROR)
+@Mapper(componentModel = "spring")
 public interface UserMapper {
     UserResponseDto toResponseDto(UserEntity userEntity);
 

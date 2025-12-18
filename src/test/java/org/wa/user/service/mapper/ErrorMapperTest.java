@@ -2,7 +2,7 @@ package org.wa.user.service.mapper;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
-import org.wa.user.service.entity.ErrorResponse;
+import org.wa.user.service.dto.ErrorResponse;
 import java.time.OffsetDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;

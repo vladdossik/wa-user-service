@@ -4,8 +4,6 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
-import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
 import org.wa.user.service.dto.device.ConnectedDeviceCreateDto;
 import org.wa.user.service.dto.device.ConnectedDeviceResponseDto;
 import org.wa.user.service.dto.device.ConnectedDeviceUpdateDto;
@@ -16,9 +14,7 @@ import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
 
-@Mapper(componentModel = "spring",
-        nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE,
-        unmappedTargetPolicy = ReportingPolicy.ERROR)
+@Mapper(componentModel = "spring")
 public interface ConnectedDeviceMapper {
     ConnectedDeviceResponseDto toResponseDto(ConnectedDeviceEntity device);
 
