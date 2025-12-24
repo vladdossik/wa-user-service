@@ -3,6 +3,7 @@ package org.wa.user.service.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
+import org.springframework.util.StringUtils;
 import org.wa.user.service.dto.profile.UserProfileRequestDto;
 import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.dto.user.UserResponseDto;
@@ -31,10 +32,9 @@ public interface UserProfileMapper {
     }
 
     default String extractLastName(String email) {
-        if (email == null || email.isBlank()) {
+        if (!StringUtils.hasText(email)) {
             return "no email user";
         }
-        int atIndex = email.indexOf("@");
-        return atIndex > 0 ? email.substring(0, atIndex) : email;
+        return email.substring(0, email.contains("@") ? email.indexOf("@") : email.length());
     }
 }

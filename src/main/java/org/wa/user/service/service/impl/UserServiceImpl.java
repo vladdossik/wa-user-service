@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.dto.common.PageResponse;
 import org.wa.user.service.dto.user.UserCreateDto;
+import org.wa.user.service.dto.user.UserRegisteredDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserUpdateDto;
@@ -19,6 +20,7 @@ import org.wa.user.service.mapper.UserMapper;
 import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.entity.enumeration.Status;
 import org.wa.user.service.repository.UserRepository;
+import org.wa.user.service.service.DecryptService;
 import org.wa.user.service.service.UserService;
 import java.util.List;
 
@@ -30,6 +32,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserAccessService accessService;
+    private final DecryptService decryptService;
 
     @Override
     public PageResponse<UserShortInfoDto> getAllUsers(Pageable pageable) {
@@ -76,6 +79,12 @@ public class UserServiceImpl implements UserService {
         log.info("Successfully retrieved user with id: {}, email: {}", userId, userEntity.getEmail());
 
         return response;
+    }
+
+    @Override
+    @Transactional
+    public UserResponseDto createUserFromRegisteredEvent(UserRegisteredDto userRegisteredDto) {
+        return createUser(userMapper.toCreateDtoFromTopic(userRegisteredDto, decryptService));
     }
 
     @Override

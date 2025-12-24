@@ -59,5 +59,5 @@ jwt:
 
 encrypt:
   secret: ${ENCRYPT_SECRET}
-  cipher-algorithm: "AES/GCM/NoPadding"
-  secret-key-algorithm: "AES"
+  cipher-algorithm: ${CIPHER_ALGORITHM}
+  secret-key-algorithm: ${SECRET_KEY_ALGORITHM}

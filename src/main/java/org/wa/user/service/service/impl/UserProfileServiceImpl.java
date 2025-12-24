@@ -7,6 +7,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.dto.profile.UserProfileRequestDto;
 import org.wa.user.service.dto.profile.UserProfileResponseDto;
+import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.exception.ResourceNotFoundException;
 import org.wa.user.service.exception.UserProfileAlreadyExistsException;
 import org.wa.user.service.mapper.UserProfileMapper;
@@ -39,12 +40,19 @@ public class UserProfileServiceImpl implements UserProfileService {
         return response;
     }
 
+    @Override
     @Transactional
     public UserProfileResponseDto validateUserAndCreate(Long userId, UserProfileRequestDto userProfileRequestDto) {
         log.info("Starting user validation before profile create for user id: {}", userId);
 
         accessService.checkUser(userId);
         return createUserProfile(userId, userProfileRequestDto);
+    }
+
+    @Override
+    @Transactional
+    public void createUserProfileFromRegisteredEvent(Long userId, UserResponseDto userResponseDto) {
+        createUserProfile(userId, userProfileMapper.toRequestDto(userResponseDto));
     }
 
     @Override
