@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import org.wa.auth.lib.util.AuthContextHolder;
 import org.wa.user.service.dto.common.PageResponse;
 import org.wa.user.service.dto.user.UserCreateDto;
 import org.wa.user.service.dto.user.UserResponseDto;
@@ -42,10 +43,11 @@ public class UserController {
     @Operation(summary = "Получить всех пользователей",
             description = "Только для администраторов")
     public PageResponse<UserShortInfoDto> getAllUsers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "id") String sort) {
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "size") int size,
+            @RequestParam(defaultValue = "id", name = "sort") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
+        System.out.println(AuthContextHolder.getGoogleRefreshToken());
         return userService.getAllUsers(pageable);
     }
 
@@ -53,9 +55,9 @@ public class UserController {
     @PreAuthorize("hasAnyRole('USER', 'ADMIN')")
     @Operation(summary = "Получить активных пользователей")
     public PageResponse<UserShortInfoDto> getActiveUsers(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "20") int size,
-            @RequestParam(defaultValue = "id") String sort) {
+            @RequestParam(defaultValue = "0", name = "page") int page,
+            @RequestParam(defaultValue = "20", name = "size") int size,
+            @RequestParam(defaultValue = "id", name = "sort") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
         return userService.getNonDeletedUsers(pageable);
     }
@@ -63,7 +65,7 @@ public class UserController {
     @GetMapping("/{id}")
     @PreAuthorize("@userAccessService.admin or @userAccessService.userId == #id")
     @Operation(summary = "Получить пользователя по ID")
-    public UserResponseDto getUserById(@PathVariable Long id) {
+    public UserResponseDto getUserById(@PathVariable("id") Long id) {
         return userService.getUserById(id);
     }
 
@@ -78,7 +80,7 @@ public class UserController {
     @PutMapping("/{id}")
     @PreAuthorize("@userAccessService.admin or @userAccessService.userId == #id")
     @Operation(summary = "Обновить пользователя")
-    public UserResponseDto updateUser(@PathVariable Long id, @Valid @RequestBody UserUpdateDto updateDto) {
+    public UserResponseDto updateUser(@PathVariable("id") Long id, @Valid @RequestBody UserUpdateDto updateDto) {
         return userService.updateUser(id, updateDto);
     }
 
@@ -86,7 +88,7 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("@userAccessService.admin or @userAccessService.userId == #id")
     @Operation(summary = "Удалить пользователя")
-    public void deleteUser(@PathVariable Long id) {
+    public void deleteUser(@PathVariable("id") Long id) {
         userService.deleteUser(id);
     }
 
@@ -95,7 +97,7 @@ public class UserController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Удалить пользователя с БД",
             description = "Только для администраторов")
-    public void hardDeleteUser(@PathVariable Long id) {
+    public void hardDeleteUser(@PathVariable("id") Long id) {
         userService.hardDeleteUser(id);
     }
 
@@ -103,7 +105,7 @@ public class UserController {
     @PreAuthorize("@userAccessService.admin or @userAccessService.userId == #id")
     @Operation(summary = "Обновить статус пользователя")
     public UserResponseDto updateUserStatus(
-            @PathVariable Long id,
+            @PathVariable("id") Long id,
             @Valid @RequestBody UserStatusUpdateDto statusDto) {
         return userService.updateUserStatus(id, statusDto);
     }

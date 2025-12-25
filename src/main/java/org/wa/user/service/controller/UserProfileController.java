@@ -29,7 +29,7 @@ public class UserProfileController {
 
     @GetMapping
     @Operation(summary = "Получить профиль")
-    public UserProfileResponseDto getUserProfile(@PathVariable Long userId) {
+    public UserProfileResponseDto getUserProfile(@PathVariable("userId") Long userId) {
         return userProfileService.getUserProfile(userId);
     }
 
@@ -37,7 +37,7 @@ public class UserProfileController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Создать профиль")
     public UserProfileResponseDto createUserProfile(
-            @PathVariable Long userId,
+            @PathVariable("userId") Long userId,
             @Valid @RequestBody UserProfileRequestDto profileDto) {
         return userProfileService.createUserProfile(userId, profileDto);
     }
@@ -45,7 +45,7 @@ public class UserProfileController {
     @PutMapping
     @Operation(summary = "Обновить профиль")
     public UserProfileResponseDto updateUserProfile(
-            @PathVariable Long userId,
+            @PathVariable("userId") Long userId,
             @Valid @RequestBody UserProfileRequestDto profileDto) {
         return userProfileService.updateUserProfile(userId, profileDto);
     }
@@ -53,7 +53,7 @@ public class UserProfileController {
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Удалить профиль")
-    public void deleteUserProfile(@PathVariable Long userId) {
+    public void deleteUserProfile(@PathVariable("userId") Long userId) {
         userProfileService.deleteUserProfile(userId);
     }
 }

@@ -32,7 +32,7 @@ public class ConnectedDeviceController {
 
     @GetMapping
     @Operation(summary = "Получить устройства пользователя")
-    public List<ConnectedDeviceResponseDto> getUserDevices(@PathVariable Long userId) {
+    public List<ConnectedDeviceResponseDto> getUserDevices(@PathVariable("userId") Long userId) {
         return devicesService.getUserDevices(userId);
     }
 
@@ -40,7 +40,7 @@ public class ConnectedDeviceController {
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Добавить устройство")
     public ConnectedDeviceResponseDto addDevice(
-            @PathVariable Long userId,
+            @PathVariable("userId") Long userId,
             @Valid @RequestBody ConnectedDeviceCreateDto deviceDto) {
         return devicesService.addUserDevice(userId, deviceDto);
     }
@@ -48,8 +48,8 @@ public class ConnectedDeviceController {
     @PutMapping("/{deviceId}")
     @Operation(summary = "Обновить устройство")
     public ConnectedDeviceResponseDto updateDevice(
-            @PathVariable Long userId,
-            @PathVariable Long deviceId,
+            @PathVariable("userId") Long userId,
+            @PathVariable("deviceId") Long deviceId,
             @Valid @RequestBody ConnectedDeviceUpdateDto updateDto) {
         return devicesService.updateUserDevice(userId, deviceId, updateDto);
     }
@@ -57,15 +57,15 @@ public class ConnectedDeviceController {
     @PatchMapping("/{deviceId}/sync")
     @Operation(summary = "Синхронизировать устройство")
     public ConnectedDeviceResponseDto syncDevice(
-            @PathVariable Long userId,
-            @PathVariable Long deviceId) {
+            @PathVariable("userId") Long userId,
+            @PathVariable("deviceId") Long deviceId) {
         return devicesService.syncDevice(userId, deviceId);
     }
 
     @DeleteMapping("/{deviceId}")
     @Operation(summary = "Удалить устройство")
-    public void deleteDevice(@PathVariable Long userId,
-                                             @PathVariable Long deviceId) {
+    public void deleteDevice(@PathVariable("userId") Long userId,
+                                             @PathVariable("deviceId") Long deviceId) {
         devicesService.deleteDevice(userId, deviceId);
     }
 }
