@@ -2,20 +2,28 @@ package org.wa.user.service.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.wa.user.service.dto.user.UserCreateDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserUpdateDto;
 import org.wa.user.service.entity.UserEntity;
+import org.wa.user.service.service.DecryptService;
 import org.wa.user.service.util.Initializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mapstruct.factory.Mappers.getMapper;
 
+@SpringBootTest
 public class UserMapperTest {
-    private final UserMapper userMapper = getMapper(UserMapper.class);
+    @Autowired
+    private UserMapper userMapper;
+    
+    @MockBean
+    private DecryptService decryptService;
 
     private UserEntity user;
     private UserCreateDto createDto;

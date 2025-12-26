@@ -8,6 +8,19 @@ spring:
     driver-class-name: org.postgresql.Driver
   config:
     import: optional:file:.env[.properties]
+  kafka:
+    bootstrap-servers: localhost:9092
+    consumer:
+      group-id: ${spring.application.name}
+      autoOffsetReset: earliest
+      keyDeserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+      valueDeserializer: org.springframework.kafka.support.serializer.ErrorHandlingDeserializer
+    properties:
+      spring.deserializer.key.delegate.class: org.apache.kafka.common.serialization.StringDeserializer
+      spring.deserializer.value.delegate.class: org.springframework.kafka.support.serializer.JsonDeserializer
+      spring.json.value.default.type: org.wa.user.service.dto.user.UserRegisteredDto
+      spring.json.trusted.packages: "org.wa.user.service.dto.user,java.util,java.lang"
+      spring.json.use.type.headers: false
 
   jpa:
     hibernate:
@@ -33,9 +46,18 @@ springdoc:
   api-docs:
     path: /v3/api-docs
 
+kafka:
+  topics:
+    user-registered: user.registered
+
 jwt:
   secret:
     access: ${JWT_SECRET_ACCESS}
     refresh: ${JWT_SECRET_REFRESH}
   expiration-ms: ${JWT_EXPIRATION_MS}
   refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS}
+
+encrypt:
+  secret: ${ENCRYPT_SECRET}
+  cipher-algorithm: ${CIPHER_ALGORITHM}
+  secret-key-algorithm: ${SECRET_KEY_ALGORITHM}

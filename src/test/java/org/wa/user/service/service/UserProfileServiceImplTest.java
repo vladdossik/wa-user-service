@@ -12,6 +12,7 @@ import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.entity.UserProfileEntity;
 import org.wa.user.service.exception.ResourceNotFoundException;
 import org.wa.user.service.exception.UserProfileAlreadyExistsException;
+import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.mapper.UserProfileMapper;
 import org.wa.user.service.repository.UserProfileRepository;
 import org.wa.user.service.service.impl.UserProfileServiceImpl;
@@ -34,6 +35,9 @@ public class UserProfileServiceImplTest {
 
     @Mock
     private UserProfileMapper userProfileMapper;
+
+    @Mock
+    private UserAccessService accessService;
 
     @InjectMocks
     private UserProfileServiceImpl userProfileService;

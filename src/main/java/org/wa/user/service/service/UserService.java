@@ -3,6 +3,7 @@ package org.wa.user.service.service;
 import org.springframework.data.domain.Pageable;
 import org.wa.user.service.dto.common.PageResponse;
 import org.wa.user.service.dto.user.UserCreateDto;
+import org.wa.user.service.dto.user.UserRegisteredDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserUpdateDto;
@@ -15,6 +16,8 @@ public interface UserService {
     UserResponseDto getUserById(Long userId);
 
     PageResponse<UserShortInfoDto> getNonDeletedUsers(Pageable pageable);
+
+    UserResponseDto createUserFromRegisteredEvent(UserRegisteredDto userRegisteredDto);
 
     UserResponseDto createUser(UserCreateDto userCreateDto);
 

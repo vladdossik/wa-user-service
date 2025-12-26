@@ -1,9 +1,11 @@
 package org.wa.user.service.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.wa.user.service.dto.device.ConnectedDeviceCreateDto;
 import org.wa.user.service.dto.device.ConnectedDeviceResponseDto;
 import org.wa.user.service.dto.device.ConnectedDeviceUpdateDto;
@@ -26,6 +28,7 @@ public interface ConnectedDeviceMapper {
     @Mapping(target = "lastSyncAt", ignore = true)
     ConnectedDeviceEntity toEntity(ConnectedDeviceCreateDto createDto);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     @Mapping(target = "deviceType", ignore = true)

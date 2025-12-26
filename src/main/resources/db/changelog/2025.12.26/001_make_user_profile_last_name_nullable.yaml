@@ -1,0 +1,10 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2025.12.26_001_make_user_profile_last_name_nullable
+      author: givan3819@gmail.com
+      changes:
+        - dropNotNullConstraint:
+            tableName: user_profile
+            columnName: last_name
+            columnDataType: VARCHAR(100)
+
