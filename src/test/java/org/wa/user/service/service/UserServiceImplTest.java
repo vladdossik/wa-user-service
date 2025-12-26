@@ -18,6 +18,7 @@ import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.entity.enumeration.Status;
 import org.wa.user.service.exception.AttributeDuplicateException;
 import org.wa.user.service.exception.ResourceNotFoundException;
+import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.mapper.UserMapper;
 import org.wa.user.service.repository.UserRepository;
 import org.wa.user.service.service.impl.UserServiceImpl;
@@ -38,6 +39,9 @@ public class UserServiceImplTest {
 
     @Mock
     private UserMapper userMapper;
+
+    @Mock
+    private UserAccessService accessService;
 
     @InjectMocks
     private UserServiceImpl userService;

@@ -13,6 +13,7 @@ import org.wa.user.service.entity.ConnectedDeviceEntity;
 import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.exception.AttributeDuplicateException;
 import org.wa.user.service.exception.ResourceNotFoundException;
+import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.mapper.ConnectedDeviceMapper;
 import org.wa.user.service.repository.ConnectedDeviceRepository;
 import org.wa.user.service.service.impl.ConnectedDeviceServiceImpl;
@@ -36,6 +37,9 @@ public class ConnectedDeviceServiceImplTest {
 
     @Mock
     private ConnectedDeviceMapper deviceMapper;
+
+    @Mock
+    private UserAccessService accessService;
 
     @InjectMocks
     private ConnectedDeviceServiceImpl connectedDeviceService;

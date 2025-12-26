@@ -20,7 +20,6 @@ import org.wa.user.service.mapper.UserMapper;
 import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.entity.enumeration.Status;
 import org.wa.user.service.repository.UserRepository;
-import org.wa.user.service.service.DecryptService;
 import org.wa.user.service.service.UserService;
 import java.util.List;
 
@@ -32,7 +31,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserAccessService accessService;
-    private final DecryptService decryptService;
 
     @Override
     public PageResponse<UserShortInfoDto> getAllUsers(Pageable pageable) {
@@ -84,7 +82,7 @@ public class UserServiceImpl implements UserService {
     @Override
     @Transactional
     public UserResponseDto createUserFromRegisteredEvent(UserRegisteredDto userRegisteredDto) {
-        return createUser(userMapper.toCreateDtoFromTopic(userRegisteredDto, decryptService));
+        return createUser(userMapper.toCreateDtoFromTopic(userRegisteredDto));
     }
 
     @Override

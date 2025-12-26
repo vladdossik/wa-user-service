@@ -1,9 +1,10 @@
 package org.wa.user.service.mapper;
 
+import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
-import org.springframework.util.StringUtils;
+import org.mapstruct.NullValuePropertyMappingStrategy;
 import org.wa.user.service.dto.profile.UserProfileRequestDto;
 import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.dto.user.UserResponseDto;
@@ -14,7 +15,7 @@ public interface UserProfileMapper {
     UserProfileResponseDto toResponseDto(UserProfileEntity profile);
 
     @Mapping(target = "firstName", expression = "java(buildFirstName(userResponseDto.getId()))")
-    @Mapping(target = "lastName", expression = "java(extractLastName(userResponseDto.getEmail()))")
+    @Mapping(target = "lastName", ignore = true)
     @Mapping(target = "activityLevel", ignore = true)
     @Mapping(target = "healthGoal", ignore = true)
     UserProfileRequestDto toRequestDto(UserResponseDto userResponseDto);
@@ -23,6 +24,7 @@ public interface UserProfileMapper {
     @Mapping(target = "user", ignore = true)
     UserProfileEntity toEntity(UserProfileRequestDto requestDto);
 
+    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     void updateEntityFromDto(UserProfileRequestDto requestDto, @MappingTarget UserProfileEntity profile);
@@ -31,10 +33,4 @@ public interface UserProfileMapper {
         return userId == null ? "user" : "user" + userId;
     }
 
-    default String extractLastName(String email) {
-        if (!StringUtils.hasText(email)) {
-            return "no email user";
-        }
-        return email.substring(0, email.contains("@") ? email.indexOf("@") : email.length());
-    }
 }
