@@ -94,7 +94,7 @@ public class UserServiceImpl implements UserService {
             log.warn("Attempt to create user with duplicate email: {}", createDto.getEmail());
             throw new AttributeDuplicateException("Email is already exists: " + createDto.getEmail());
         }
-        if (userRepository.existsByPhone(createDto.getPhone())) {
+        if (createDto.getPhone() != null && userRepository.existsByPhone(createDto.getPhone())) {
             log.warn("Attempt to create user with duplicate phone: {}", createDto.getPhone());
             throw new AttributeDuplicateException("Phone is already exists: " + createDto.getPhone());
         }

@@ -21,7 +21,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import org.wa.auth.lib.util.AuthContextHolder;
 import org.wa.user.service.dto.common.PageResponse;
 import org.wa.user.service.dto.user.UserCreateDto;
 import org.wa.user.service.dto.user.UserResponseDto;
@@ -47,7 +46,6 @@ public class UserController {
             @RequestParam(defaultValue = "20", name = "size") int size,
             @RequestParam(defaultValue = "id", name = "sort") String sort) {
         Pageable pageable = PageRequest.of(page, size, Sort.by(sort));
-        System.out.println(AuthContextHolder.getGoogleRefreshToken());
         return userService.getAllUsers(pageable);
     }
 
