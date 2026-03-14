@@ -2,7 +2,6 @@ package org.wa.user.service.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -36,6 +35,7 @@ public class SecurityConfig {
 
                         .requestMatchers(HttpMethod.GET, "/v1/users").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/v1/users/*/permanent").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "v1/users/*/profile").hasRole("ADMIN")
 
                         .requestMatchers(
                                 "/swagger-ui/**",

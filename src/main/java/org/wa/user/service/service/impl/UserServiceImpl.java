@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.wa.user.service.config.UserAccessService;
+import org.wa.user.service.service.UserAccessService;
 import org.wa.user.service.dto.common.PageResponse;
 import org.wa.user.service.dto.user.UserCreateDto;
 import org.wa.user.service.dto.user.UserRegisteredDto;
@@ -22,6 +22,7 @@ import org.wa.user.service.entity.enumeration.Status;
 import org.wa.user.service.repository.UserRepository;
 import org.wa.user.service.service.UserService;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -61,12 +62,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserResponseDto getUserById(Long userId) {
+    public UserResponseDto getUserById(UUID userId) {
         log.info("Getting user by id: {}", userId);
 
         accessService.checkUser(userId);
 
-        UserEntity userEntity = getUserEntity(userId);
+        UserEntity userEntity = getUserEntityByExternalId(userId);
 
         if (userEntity.getStatus() == Status.DELETED) {
             log.warn("Tried to access deleted user with id: {}", userId);
@@ -74,7 +75,7 @@ public class UserServiceImpl implements UserService {
         }
 
         UserResponseDto response = userMapper.toResponseDto(userEntity);
-        log.info("Successfully retrieved user with id: {}, email: {}", userId, userEntity.getEmail());
+        log.info("Successfully retrieved user with external id: {}, email: {}", userId, userEntity.getEmail());
 
         return response;
     }
@@ -87,41 +88,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public UserResponseDto createUser(UserCreateDto createDto) {
-        log.info("Creating new user with email: {}", createDto.getEmail());
-
-        if (userRepository.existsByEmail(createDto.getEmail())) {
-            log.warn("Attempt to create user with duplicate email: {}", createDto.getEmail());
-            throw new AttributeDuplicateException("Email is already exists: " + createDto.getEmail());
-        }
-        if (createDto.getPhone() != null && userRepository.existsByPhone(createDto.getPhone())) {
-            log.warn("Attempt to create user with duplicate phone: {}", createDto.getPhone());
-            throw new AttributeDuplicateException("Phone is already exists: " + createDto.getPhone());
-        }
-
-        log.debug("Mapping UserCreateDto to UserEntity");
-        UserEntity userEntity = userMapper.toEntity(createDto);
-        userEntity.setStatus(Status.ACTIVE);
-
-        log.debug("Saving user to database");
-        UserEntity savedUserEntity = userRepository.save(userEntity);
-        log.info("Successfully created user with id: {} and email: {}",
-                savedUserEntity.getId(), savedUserEntity.getEmail());
-
-        UserResponseDto response = userMapper.toResponseDto(savedUserEntity);
-        log.debug("Successfully mapped UserEntity to UserResponseDto");
-
-        return response;
-    }
-
-    @Override
-    @Transactional
-    public UserResponseDto updateUser(Long userId, UserUpdateDto updateDto) {
+    public UserResponseDto updateUser(UUID userId, UserUpdateDto updateDto) {
         log.info("Updating user with id: {}", userId);
 
         accessService.checkUser(userId);
 
-        UserEntity userEntity = getUserEntity(userId);
+        UserEntity userEntity = getUserEntityByExternalId(userId);
 
         if (userEntity.getStatus() == Status.DELETED) {
             log.warn("Attempt to update deleted user with id: {}", userId);
@@ -130,14 +102,14 @@ public class UserServiceImpl implements UserService {
 
         if (updateDto.getEmail() != null &&
                 !userEntity.getEmail().equals(updateDto.getEmail()) &&
-                userRepository.existsByEmailAndIdNot(updateDto.getEmail(), userId)) {
+                userRepository.existsByEmailAndExternalId(updateDto.getEmail(), userId)) {
             log.warn("Attempt to update user id: {} with duplicate email: {}", userId, updateDto.getEmail());
             throw new AttributeDuplicateException("Email already exists: " + updateDto.getEmail());
         }
 
         if (updateDto.getPhone() != null &&
                 !userEntity.getPhone().equals(updateDto.getPhone()) &&
-                userRepository.existsByPhoneAndIdNot(updateDto.getPhone(), userId)) {
+                userRepository.existsByPhoneAndExternalId(updateDto.getPhone(), userId)) {
             log.warn("Attempt to update user id: {} with duplicate phone: {}", userId, updateDto.getPhone());
             throw new AttributeDuplicateException("Phone already exists: " + updateDto.getPhone());
         }
@@ -156,12 +128,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void deleteUser(Long userId) {
+    public void deleteUser(UUID userId) {
         log.info("Deleting user with id: {}", userId);
 
         accessService.checkUser(userId);
 
-        UserEntity userEntity = getUserEntity(userId);
+        UserEntity userEntity = getUserEntityByExternalId(userId);
         userEntity.setStatus(Status.DELETED);
 
         userRepository.save(userEntity);
@@ -170,28 +142,28 @@ public class UserServiceImpl implements UserService {
 
     @Override
     @Transactional
-    public void hardDeleteUser(Long userId) {
+    public void hardDeleteUser(UUID userId) {
         log.info("Hard deleting user with id: {}", userId);
 
         accessService.checkUser(userId);
 
-        if (!userRepository.existsById(userId)) {
+        if (!userRepository.existsByExternalId(userId)) {
             log.warn("Attempt to hard delete non-existent user with id: {}", userId);
             throw new ResourceNotFoundException("User not found with this userId" + userId);
         }
 
-        userRepository.deleteById(userId);
+        userRepository.deleteByExternalId(userId);
         log.info("Successfully hard deleted user with id: {}", userId);
     }
 
     @Override
     @Transactional
-    public UserResponseDto updateUserStatus(Long userId, UserStatusUpdateDto updateDto) {
+    public UserResponseDto updateUserStatus(UUID userId, UserStatusUpdateDto updateDto) {
         log.info("Updating status for user id: {} to {}", userId, updateDto.getStatus());
 
         accessService.checkUser(userId);
 
-        UserEntity userEntity = getUserEntity(userId);
+        UserEntity userEntity = getUserEntityByExternalId(userId);
         userEntity.setStatus(updateDto.getStatus());
 
         UserEntity updatedUserEntity = userRepository.save(userEntity);
@@ -200,20 +172,46 @@ public class UserServiceImpl implements UserService {
         return userMapper.toResponseDto(updatedUserEntity);
     }
 
-    public UserEntity getUserEntity(Long userId) {
-        log.debug("Fetching user entity by id: {}", userId);
+    public UserEntity getUserEntityByExternalId(UUID externalId) {
+        log.debug("Fetching user entity by external id: {}", externalId);
 
-        return userRepository.findById(userId)
+        return userRepository.findByExternalId(externalId)
                 .orElseThrow(() -> {
-                    log.warn("User not found with id: {}", userId);
-                    return new ResourceNotFoundException("User not found with this userId: " + userId);
+                    log.warn("User not found with external id: {}", externalId);
+                    return new ResourceNotFoundException("User not found with this external id: " + externalId);
                 });
     }
 
-    public boolean userExists(Long userId) {
-        boolean exists = userRepository.existsById(userId);
-        log.debug("Checked if user exists with id: {} - result: {}", userId, exists);
+    private UserResponseDto createUser(UserCreateDto createDto) {
+        log.info("Creating new user with email: {}", createDto.getEmail());
 
-        return exists;
+        if (userRepository.existsByExternalId(createDto.getId())) {
+            log.warn("Attempt to create user with duplicate ID: {}", createDto.getId());
+            throw new AttributeDuplicateException("ID is already exists: " + createDto.getId());
+        }
+
+        if (userRepository.existsByEmail(createDto.getEmail())) {
+            log.warn("Attempt to create user with duplicate email: {}", createDto.getEmail());
+            throw new AttributeDuplicateException("Email is already exists: " + createDto.getEmail());
+        }
+
+        if (createDto.getPhone() != null && userRepository.existsByPhone(createDto.getPhone())) {
+            log.warn("Attempt to create user with duplicate phone: {}", createDto.getPhone());
+            throw new AttributeDuplicateException("Phone is already exists: " + createDto.getPhone());
+        }
+
+        log.debug("Mapping UserCreateDto to UserEntity");
+        UserEntity userEntity = userMapper.toEntity(createDto);
+        userEntity.setStatus(Status.ACTIVE);
+
+        log.debug("Saving user to database");
+        UserEntity savedUserEntity = userRepository.save(userEntity);
+        log.info("Successfully created user with external id: {} and email: {}",
+                savedUserEntity.getExternalId(), savedUserEntity.getEmail());
+
+        UserResponseDto response = userMapper.toResponseDto(savedUserEntity);
+        log.debug("Successfully mapped UserEntity to UserResponseDto");
+
+        return response;
     }
 }

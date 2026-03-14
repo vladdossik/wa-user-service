@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.wa.user.service.config.UserAccessService;
+import org.wa.user.service.service.UserAccessService;
 import org.wa.user.service.dto.profile.UserProfileRequestDto;
 import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.dto.user.UserResponseDto;
@@ -16,6 +16,7 @@ import org.wa.user.service.entity.UserProfileEntity;
 import org.wa.user.service.repository.UserProfileRepository;
 import org.wa.user.service.service.UserProfileService;
 import org.wa.user.service.service.UserService;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -42,41 +43,8 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     @Transactional
-    public UserProfileResponseDto validateUserAndCreate(Long userId, UserProfileRequestDto userProfileRequestDto) {
-        log.info("Starting user validation before profile create for user id: {}", userId);
-
-        accessService.checkUser(userId);
-        return createUserProfile(userId, userProfileRequestDto);
-    }
-
-    @Override
-    @Transactional
-    public void createUserProfileFromRegisteredEvent(Long userId, UserResponseDto userResponseDto) {
+    public void createUserProfileFromRegisteredEvent(UUID userId, UserResponseDto userResponseDto) {
         createUserProfile(userId, userProfileMapper.toRequestDto(userResponseDto));
-    }
-
-    @Override
-    @Transactional
-    public UserProfileResponseDto createUserProfile(Long userId, UserProfileRequestDto userProfileCreateDto) {
-        log.info("Creating user profile for user id: {}", userId);
-
-        UserEntity userEntity = userService.getUserEntity(userId);
-        if (userProfileRepository.existsByUserId(userId)) {
-            log.warn("Attempt to create duplicate profile for user id: {}", userId);
-            throw new UserProfileAlreadyExistsException("User profile already exists for user id: " + userId);
-        }
-
-        log.debug("Mapping UserProfileRequestDto to UserProfileEntity");
-        UserProfileEntity profile = userProfileMapper.toEntity(userProfileCreateDto);
-        profile.setUser(userEntity);
-
-        log.debug("Saving user profile to database");
-        UserProfileEntity savedProfile = userProfileRepository.save(profile);
-        UserProfileResponseDto response = userProfileMapper.toResponseDto(savedProfile);
-        log.info("Successfully created user profile with id: {} for user id: {}",
-                savedProfile.getId(), userId);
-
-        return response;
     }
 
     @Override
@@ -114,5 +82,24 @@ public class UserProfileServiceImpl implements UserProfileService {
             log.warn("User profile not found for user id: {}", userId);
             return new ResourceNotFoundException("User profile not found for user id: " + userId);
         });
+    }
+
+    private void createUserProfile(UUID userId, UserProfileRequestDto userProfileCreateDto) {
+        log.info("Creating user profile for user id: {}", userId);
+
+        UserEntity userEntity = userService.getUserEntityByExternalId(userId);
+        if (userProfileRepository.existsByUser(userEntity)) {
+            log.warn("Attempt to create duplicate profile for user id: {}", userId);
+            throw new UserProfileAlreadyExistsException("User profile already exists for user id: " + userId);
+        }
+
+        log.debug("Mapping UserProfileRequestDto to UserProfileEntity");
+        UserProfileEntity profile = userProfileMapper.toEntity(userProfileCreateDto);
+        profile.setUser(userEntity);
+
+        log.debug("Saving user profile to database");
+        UserProfileEntity savedProfile = userProfileRepository.save(profile);
+        log.info("Successfully created user profile with id: {} for user id: {}",
+                savedProfile.getId(), userId);
     }
 }

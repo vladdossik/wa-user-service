@@ -9,9 +9,12 @@ import jakarta.validation.constraints.Positive;
 import lombok.Data;
 import org.wa.user.service.entity.enumeration.Gender;
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Data
 public class UserCreateDto {
+    @NotBlank(message = "Id is required")
+    private UUID id;
     @NotBlank(message = "Email is required")
     @Email(message = "Email should be valid")
     private String email;

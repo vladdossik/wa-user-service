@@ -9,6 +9,7 @@ import org.wa.user.service.dto.profile.UserProfileRequestDto;
 import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.entity.UserProfileEntity;
+import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public interface UserProfileMapper {
@@ -29,7 +30,7 @@ public interface UserProfileMapper {
     @Mapping(target = "user", ignore = true)
     void updateEntityFromDto(UserProfileRequestDto requestDto, @MappingTarget UserProfileEntity profile);
 
-    default String buildFirstName(Long userId) {
+    default String buildFirstName(UUID userId) {
         return userId == null ? "user" : "user" + userId;
     }
 
