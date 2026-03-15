@@ -43,8 +43,8 @@ public class UserProfileServiceImpl implements UserProfileService {
 
     @Override
     @Transactional
-    public void createUserProfileFromRegisteredEvent(UUID userId, UserResponseDto userResponseDto) {
-        createUserProfile(userId, userProfileMapper.toRequestDto(userResponseDto));
+    public void createUserProfileFromRegisteredEvent(UUID externalId, UserResponseDto userResponseDto) {
+        createUserProfile(externalId, userProfileMapper.toRequestDto(userResponseDto));
     }
 
     @Override
@@ -84,13 +84,13 @@ public class UserProfileServiceImpl implements UserProfileService {
         });
     }
 
-    private void createUserProfile(UUID userId, UserProfileRequestDto userProfileCreateDto) {
-        log.info("Creating user profile for user id: {}", userId);
+    private void createUserProfile(UUID externalId, UserProfileRequestDto userProfileCreateDto) {
+        log.info("Creating user profile for user id: {}", externalId);
 
-        UserEntity userEntity = userService.getUserEntityByExternalId(userId);
+        UserEntity userEntity = userService.getUserEntityByExternalId(externalId);
         if (userProfileRepository.existsByUser(userEntity)) {
-            log.warn("Attempt to create duplicate profile for user id: {}", userId);
-            throw new UserProfileAlreadyExistsException("User profile already exists for user id: " + userId);
+            log.warn("Attempt to create duplicate profile for user id: {}", externalId);
+            throw new UserProfileAlreadyExistsException("User profile already exists for user id: " + externalId);
         }
 
         log.debug("Mapping UserProfileRequestDto to UserProfileEntity");
@@ -100,6 +100,6 @@ public class UserProfileServiceImpl implements UserProfileService {
         log.debug("Saving user profile to database");
         UserProfileEntity savedProfile = userProfileRepository.save(profile);
         log.info("Successfully created user profile with id: {} for user id: {}",
-                savedProfile.getId(), userId);
+                savedProfile.getId(), externalId);
     }
 }

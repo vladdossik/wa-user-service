@@ -11,17 +11,17 @@ import java.time.LocalDateTime;
 
 @Data
 public class UserUpdateDto {
-    @Email(message = "Email should be valid")
+    @Email(message = "Email должен быть действительным")
     private String email;
-    @Pattern(regexp = "^\\+7\\d{10}$", message = "Phone should be valid")
+    @Pattern(regexp = "^\\+7\\d{10}$", message = "Телефон должен быть действительным")
     private String phone;
-    @Past(message = "Birthday must be in the past")
+    @Past(message = "Дата рождения должна быть в прошедшем времени")
     private LocalDateTime birthday;
     private Gender gender;
-    @Positive(message = "Height must be positive value")
-    @Max(value = 250, message = "Height must be at most 250 cm")
+    @Positive(message = "Рост должен иметь положительное значение")
+    @Max(value = 250, message = "Рост должен быть не более 250 см")
     private Integer height;
-    @Positive(message = "Weight must be positive value")
-    @Max(value = 300, message = "Weight must be at most 300 kg")
+    @Positive(message = "Вес должен иметь положительное значение")
+    @Max(value = 300, message = "Вес должен быть не более 300 кг")
     private Integer weight;
 }

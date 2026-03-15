@@ -7,10 +7,10 @@ import org.wa.user.service.entity.enumeration.ConnectedDeviceType;
 
 @Data
 public class ConnectedDeviceCreateDto {
-    @NotNull(message = "Device type is required")
+    @NotNull(message = "Требуется тип устройства")
     private ConnectedDeviceType deviceType;
-    @NotBlank(message = "Device ID is required")
+    @NotBlank(message = "Требуется ID устройства")
     private String deviceId;
-    @NotBlank(message = "Device model is required")
+    @NotBlank(message = "Требуется модель устройства")
     private String deviceModel;
 }

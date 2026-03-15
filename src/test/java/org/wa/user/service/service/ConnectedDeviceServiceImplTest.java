@@ -15,7 +15,6 @@ import org.wa.user.service.exception.AttributeDuplicateException;
 import org.wa.user.service.exception.ResourceNotFoundException;
 import org.wa.user.service.mapper.ConnectedDeviceMapper;
 import org.wa.user.service.repository.ConnectedDeviceRepository;
-import org.wa.user.service.repository.UserRepository;
 import org.wa.user.service.service.impl.ConnectedDeviceServiceImpl;
 import org.wa.user.service.util.Initializer;
 import java.util.List;
@@ -33,7 +32,7 @@ public class ConnectedDeviceServiceImplTest {
     private ConnectedDeviceRepository deviceRepository;
 
     @Mock
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Mock
     private ConnectedDeviceMapper deviceMapper;
@@ -63,7 +62,7 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void getUserDevicesTest_success() {
-        when(userRepository.existsById(userId)).thenReturn(true);
+        when(userService.userNotExists(userId)).thenReturn(false);
         when(deviceRepository.findByUserId(userId)).thenReturn(List.of(device));
         when(deviceMapper.toResponseDtoList(List.of(device))).thenReturn(List.of(deviceResponseDto));
 
@@ -77,7 +76,7 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void getUserDevicesTest_userNotFound() {
-        when(userRepository.existsById(userId)).thenReturn(false);
+        when(userService.userNotExists(userId)).thenReturn(true);
 
         assertThrows(ResourceNotFoundException.class,
                 () -> connectedDeviceService.getUserDevices(userId));
@@ -86,7 +85,7 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void addUserDeviceTest_success() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userService.getUserEntity(userId)).thenReturn(user);
         when(deviceRepository.existsByDeviceId(deviceCreateDto.getDeviceId())).thenReturn(false);
         when(deviceMapper.setDeviceDefaults(deviceCreateDto, user)).thenReturn(device);
         when(deviceRepository.save(device)).thenReturn(device);
@@ -102,7 +101,7 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void addUserDeviceTest_deviceExists() {
-        when(userRepository.findById(userId)).thenReturn(Optional.of(user));
+        when(userService.getUserEntity(userId)).thenReturn(user);
         when(deviceRepository.existsByDeviceId(deviceCreateDto.getDeviceId())).thenReturn(true);
 
         assertThrows(AttributeDuplicateException.class,
@@ -112,7 +111,7 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void addUserDeviceTest_userNotFound() {
-        when(userRepository.findById(userId)).thenReturn(Optional.empty());
+        when(userService.getUserEntity(userId)).thenThrow(new ResourceNotFoundException("User not found"));
 
         assertThrows(ResourceNotFoundException.class,
                 () -> connectedDeviceService.addUserDevice(userId, deviceCreateDto));
@@ -121,7 +120,7 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void updateUserDeviceTest_success() {
-        when(userRepository.existsById(userId)).thenReturn(true);
+        when(userService.userNotExists(userId)).thenReturn(false);
         when(deviceRepository.findByUserIdAndDeviceId(userId, 1L))
                 .thenReturn(Optional.of(device));
         when(deviceRepository.save(device)).thenReturn(device);
@@ -138,7 +137,7 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void updateUserDeviceTest_userNotFound() {
-        when(userRepository.existsById(userId)).thenReturn(false);
+        when(userService.userNotExists(userId)).thenReturn(true);
 
         assertThrows(ResourceNotFoundException.class,
                 () -> connectedDeviceService.updateUserDevice(userId, 1L, deviceUpdateDto));
@@ -147,7 +146,7 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void updateUserDeviceTest_deviceNotFound() {
-        when(userRepository.existsById(userId)).thenReturn(true);
+        when(userService.userNotExists(userId)).thenReturn(false);
         when(deviceRepository.findByUserIdAndDeviceId(userId, 1L))
                 .thenReturn(Optional.empty());
 

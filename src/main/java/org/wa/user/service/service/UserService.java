@@ -13,19 +13,23 @@ import java.util.UUID;
 public interface UserService {
     PageResponse<UserShortInfoDto> getAllUsers(Pageable pageable);
 
-    UserResponseDto getUserById(UUID userId);
+    UserResponseDto getUserById(UUID externalId);
 
     PageResponse<UserShortInfoDto> getNonDeletedUsers(Pageable pageable);
 
     UserResponseDto createUserFromRegisteredEvent(UserRegisteredDto userRegisteredDto);
 
-    UserResponseDto updateUser(UUID userId, UserUpdateDto userUpdateDto);
+    UserResponseDto updateUser(UUID externalId, UserUpdateDto userUpdateDto);
 
-    void deleteUser(UUID userId);
+    void deleteUser(UUID externalId);
 
-    void hardDeleteUser(UUID userId);
+    void hardDeleteUser(UUID externalId);
 
-    UserResponseDto updateUserStatus(UUID userId, UserStatusUpdateDto userStatusDto);
+    UserResponseDto updateUserStatus(UUID externalId, UserStatusUpdateDto userStatusDto);
 
     UserEntity getUserEntityByExternalId(UUID externalId);
+
+    UserEntity getUserEntity(Long userId);
+
+    boolean userNotExists(Long userId);
 }

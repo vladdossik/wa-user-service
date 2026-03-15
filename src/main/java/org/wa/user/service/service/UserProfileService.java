@@ -8,7 +8,7 @@ import java.util.UUID;
 public interface UserProfileService {
     UserProfileResponseDto getUserProfile(Long userId);
 
-    void createUserProfileFromRegisteredEvent(UUID userId, UserResponseDto userResponseDto);
+    void createUserProfileFromRegisteredEvent(UUID externalId, UserResponseDto userResponseDto);
 
     UserProfileResponseDto updateUserProfile(Long userId, UserProfileRequestDto userProfileUpdateDto);
 

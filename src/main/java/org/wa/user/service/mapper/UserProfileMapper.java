@@ -15,7 +15,7 @@ import java.util.UUID;
 public interface UserProfileMapper {
     UserProfileResponseDto toResponseDto(UserProfileEntity profile);
 
-    @Mapping(target = "firstName", expression = "java(buildFirstName(userResponseDto.getId()))")
+    @Mapping(target = "firstName", expression = "java(buildFirstName(userResponseDto.getExternalId()))")
     @Mapping(target = "lastName", ignore = true)
     @Mapping(target = "activityLevel", ignore = true)
     @Mapping(target = "healthGoal", ignore = true)

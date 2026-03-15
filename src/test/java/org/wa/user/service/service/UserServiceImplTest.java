@@ -26,8 +26,10 @@ import org.wa.user.service.util.Initializer;
 import java.util.Optional;
 import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -59,11 +61,13 @@ public class UserServiceImplTest {
     private UserUpdateDto updateDtoWithExistingEmail;
     private UserCreateDto createDto;
     private UUID externalId;
+    private Long internalId;
 
     @BeforeEach
     void setUp() {
         user = Initializer.createTestUser();
         externalId = user.getExternalId();
+        internalId = user.getId();
         createDto = Initializer.createTestUserCreateDto();
         updateDto = Initializer.createTestUserUpdateDto();
         registeredDto = Initializer.createTestUserRegisteredDto();
@@ -109,7 +113,7 @@ public class UserServiceImplTest {
         UserResponseDto response = userService.getUserById(externalId);
 
         assertNotNull(response);
-        assertEquals(externalId, response.getId());
+        assertEquals(externalId, response.getExternalId());
         assertEquals("test@email.com", response.getEmail());
         verify(accessService, times(1)).checkUser(externalId);
         verify(userRepository, times(1)).findByExternalId(externalId);
@@ -136,7 +140,7 @@ public class UserServiceImplTest {
     @Test
     void createUserFromRegisteredEventTest_success() {
         when(userMapper.toCreateDtoFromTopic(registeredDto)).thenReturn(createDto);
-        when(userRepository.existsByExternalId(createDto.getId())).thenReturn(false);
+        when(userRepository.existsByExternalId(createDto.getExternalId())).thenReturn(false);
         when(userRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
         when(userRepository.existsByPhone(createDto.getPhone())).thenReturn(false);
         when(userMapper.toEntity(createDto)).thenReturn(user);
@@ -146,7 +150,7 @@ public class UserServiceImplTest {
         UserResponseDto response = userService.createUserFromRegisteredEvent(registeredDto);
 
         assertNotNull(response);
-        assertEquals(externalId, response.getId());
+        assertEquals(externalId, response.getExternalId());
         verify(userMapper, times(1)).toCreateDtoFromTopic(registeredDto);
         verify(userRepository, times(1)).save(user);
     }
@@ -154,7 +158,7 @@ public class UserServiceImplTest {
     @Test
     void createUserFromRegisteredEventTest_externalIdExists() {
         when(userMapper.toCreateDtoFromTopic(registeredDto)).thenReturn(createDto);
-        when(userRepository.existsByExternalId(createDto.getId())).thenReturn(true);
+        when(userRepository.existsByExternalId(createDto.getExternalId())).thenReturn(true);
 
         assertThrows(AttributeDuplicateException.class,
                 () -> userService.createUserFromRegisteredEvent(registeredDto));
@@ -163,7 +167,7 @@ public class UserServiceImplTest {
     @Test
     void createUserFromRegisteredEventTest_emailExists() {
         when(userMapper.toCreateDtoFromTopic(registeredDto)).thenReturn(createDto);
-        when(userRepository.existsByExternalId(createDto.getId())).thenReturn(false);
+        when(userRepository.existsByExternalId(createDto.getExternalId())).thenReturn(false);
         when(userRepository.existsByEmail(createDto.getEmail())).thenReturn(true);
 
         assertThrows(AttributeDuplicateException.class,
@@ -173,7 +177,7 @@ public class UserServiceImplTest {
     @Test
     void createUserFromRegisteredEventTest_phoneExists() {
         when(userMapper.toCreateDtoFromTopic(registeredDto)).thenReturn(createDto);
-        when(userRepository.existsByExternalId(createDto.getId())).thenReturn(false);
+        when(userRepository.existsByExternalId(createDto.getExternalId())).thenReturn(false);
         when(userRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
         when(userRepository.existsByPhone(createDto.getPhone())).thenReturn(true);
 
@@ -319,5 +323,46 @@ public class UserServiceImplTest {
 
         assertThrows(ResourceNotFoundException.class,
                 () -> userService.getUserEntityByExternalId(externalId));
+    }
+
+    @Test
+    void getUserEntityByInternalIdTest_success() {
+        when(userRepository.findById(internalId)).thenReturn(Optional.of(user));
+
+        UserEntity found = userService.getUserEntity(internalId);
+
+        assertNotNull(found);
+        assertEquals(internalId, found.getId());
+        assertEquals(externalId, found.getExternalId());
+        verify(userRepository, times(1)).findById(internalId);
+    }
+
+    @Test
+    void getUserEntityByInternalIdTest_notFound() {
+        when(userRepository.findById(internalId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> userService.getUserEntity(internalId));
+        verify(userRepository, times(1)).findById(internalId);
+    }
+
+    @Test
+    void userNotExistsTest_whenUserExists() {
+        when(userRepository.existsById(internalId)).thenReturn(true);
+
+        boolean result = userService.userNotExists(internalId);
+
+        assertFalse(result);
+        verify(userRepository, times(1)).existsById(internalId);
+    }
+
+    @Test
+    void userNotExistsTest_whenUserDoesNotExist() {
+        when(userRepository.existsById(internalId)).thenReturn(false);
+
+        boolean result = userService.userNotExists(internalId);
+
+        assertTrue(result);
+        verify(userRepository, times(1)).existsById(internalId);
     }
 }

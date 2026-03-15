@@ -46,7 +46,7 @@ public class UserMapperTest {
         UserResponseDto responseDto = userMapper.toResponseDto(user);
 
         assertNotNull(responseDto);
-        assertEquals(user.getExternalId(), responseDto.getId());
+        assertEquals(user.getExternalId(), responseDto.getExternalId());
         assertEquals(user.getEmail(), responseDto.getEmail());
         assertEquals(user.getPhone(), responseDto.getPhone());
         assertEquals(user.getBirthday(), responseDto.getBirthday());
@@ -68,7 +68,7 @@ public class UserMapperTest {
         UserShortInfoDto shortInfoDto = userMapper.toShortInfoDto(user);
 
         assertNotNull(shortInfoDto);
-        assertEquals(user.getExternalId(), shortInfoDto.getId());
+        assertEquals(user.getExternalId(), shortInfoDto.getExternalId());
         assertEquals(user.getEmail(), shortInfoDto.getEmail());
         assertEquals(user.getPhone(), shortInfoDto.getPhone());
         assertEquals(user.getStatus(), shortInfoDto.getStatus());
@@ -85,7 +85,7 @@ public class UserMapperTest {
 
         assertNotNull(entity);
         assertNull(entity.getId());
-        assertEquals(createDto.getId(), entity.getExternalId());
+        assertEquals(createDto.getExternalId(), entity.getExternalId());
         assertNull(entity.getStatus());
         assertNull(entity.getCreatedAt());
         assertNull(entity.getModifiedAt());

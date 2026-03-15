@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.wa.user.service.repository.UserRepository;
 import org.wa.user.service.service.UserAccessService;
 import org.wa.user.service.dto.device.ConnectedDeviceCreateDto;
 import org.wa.user.service.dto.device.ConnectedDeviceResponseDto;
@@ -16,6 +15,7 @@ import org.wa.user.service.entity.ConnectedDeviceEntity;
 import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.repository.ConnectedDeviceRepository;
 import org.wa.user.service.service.ConnectedDeviceService;
+import org.wa.user.service.service.UserService;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
@@ -25,7 +25,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
     private final ConnectedDeviceRepository deviceRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
     private final ConnectedDeviceMapper deviceMapper;
     private final UserAccessService accessService;
 
@@ -36,7 +36,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
 
         accessService.checkUser(userId);
 
-        if (userNotExists(userId)) {
+        if (userService.userNotExists(userId)) {
             log.warn("User not found when getting devices for user id: {}", userId);
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
@@ -55,7 +55,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
 
         accessService.checkUser(id);
 
-        UserEntity userEntity = getUserEntity(id);
+        UserEntity userEntity = userService.getUserEntity(id);
 
         if (deviceRepository.existsByDeviceId(deviceCreateDto.getDeviceId())) {
             log.warn("Attempt to add duplicate device ID: {}", deviceCreateDto.getDeviceId());
@@ -82,7 +82,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
 
         accessService.checkUser(userId);
 
-        if (userNotExists(userId)) {
+        if (userService.userNotExists(userId)) {
             log.warn("User not found when updating device for user id: {}", userId);
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
@@ -136,22 +136,5 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
                             String.format("Device not found with id: %d for user id: %d", deviceId, userId)
                     );
                 });
-    }
-
-    private UserEntity getUserEntity(Long userId) {
-        log.debug("Fetching user entity by id: {}", userId);
-
-        return userRepository.findById(userId)
-                .orElseThrow(() -> {
-                    log.warn("User not found with id: {}", userId);
-                    return new ResourceNotFoundException("User not found with this userId: " + userId);
-                });
-    }
-
-    private boolean userNotExists(Long userId) {
-        boolean exists = userRepository.existsById(userId);
-        log.debug("Checked if user exists with id: {} - result: {}", userId, exists);
-
-        return !exists;
     }
 }

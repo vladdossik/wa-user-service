@@ -10,7 +10,7 @@ import java.util.UUID;
 
 @Data
 public class UserResponseDto {
-    private UUID id;
+    private UUID externalId;
     private String email;
     private String phone;
     private LocalDateTime birthday;

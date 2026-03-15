@@ -92,7 +92,7 @@ public class Initializer {
 
     public static UserCreateDto createTestUserCreateDto() {
         UserCreateDto dto = new UserCreateDto();
-        dto.setId(TEST_EXTERNAL_ID);
+        dto.setExternalId(TEST_EXTERNAL_ID);
         dto.setEmail(TEST_EMAIL);
         dto.setPhone(TEST_PHONE);
         dto.setBirthday(TEST_BIRTHDAY);
@@ -133,7 +133,7 @@ public class Initializer {
 
     public static UserResponseDto createTestUserResponseDto() {
         UserResponseDto dto = new UserResponseDto();
-        dto.setId(TEST_EXTERNAL_ID);
+        dto.setExternalId(TEST_EXTERNAL_ID);
         dto.setEmail(TEST_EMAIL);
         dto.setPhone(TEST_PHONE);
         dto.setBirthday(TEST_BIRTHDAY);
@@ -148,7 +148,7 @@ public class Initializer {
 
     public static UserShortInfoDto createTestUserShortInfoDto() {
         UserShortInfoDto dto = new UserShortInfoDto();
-        dto.setId(TEST_EXTERNAL_ID);
+        dto.setExternalId(TEST_EXTERNAL_ID);
         dto.setEmail(TEST_EMAIL);
         dto.setPhone(TEST_PHONE);
         dto.setStatus(Status.ACTIVE);
@@ -216,7 +216,7 @@ public class Initializer {
 
     public static UserRegisteredDto createTestUserRegisteredDto() {
         UserRegisteredDto dto = new UserRegisteredDto();
-        dto.setId(TEST_EXTERNAL_ID);
+        dto.setExternalId(TEST_EXTERNAL_ID);
         dto.setEmail(TEST_EMAIL);
         dto.setPhone(TEST_PHONE);
         return dto;

@@ -21,14 +21,14 @@ public abstract class UserMapper {
     @Autowired
     protected DecryptService decryptService;
 
-    @Mapping(target = "id", source = "externalId")
+    @Mapping(target = "externalId", source = "externalId")
     public abstract UserResponseDto toResponseDto(UserEntity userEntity);
 
-    @Mapping(target = "id", source = "externalId")
+    @Mapping(target = "externalId", source = "externalId")
     public abstract UserShortInfoDto toShortInfoDto(UserEntity userEntity);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "externalId", source = "id")
+    @Mapping(target = "externalId", source = "externalId")
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
@@ -36,7 +36,7 @@ public abstract class UserMapper {
     @Mapping(target = "connectedDevices", ignore = true)
     public abstract UserEntity toEntity(UserCreateDto createDto);
 
-    @Mapping(target = "id", source = "id")
+    @Mapping(target = "externalId", source = "externalId")
     @Mapping(target = "email", expression = "java(decryptService.decrypt(userRegisteredDto.getEmail()))")
     @Mapping(target = "phone", expression = "java(decryptService.decrypt(userRegisteredDto.getPhone()))")
     @Mapping(target = "birthday", ignore = true)
