@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.wa.user.service.config.UserAccessService;
+import org.wa.user.service.service.UserAccessService;
 import org.wa.user.service.dto.device.ConnectedDeviceCreateDto;
 import org.wa.user.service.dto.device.ConnectedDeviceResponseDto;
 import org.wa.user.service.dto.device.ConnectedDeviceUpdateDto;
@@ -36,7 +36,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
 
         accessService.checkUser(userId);
 
-        if (!userService.userExists(userId)) {
+        if (userService.userNotExists(userId)) {
             log.warn("User not found when getting devices for user id: {}", userId);
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }
@@ -82,7 +82,7 @@ public class ConnectedDeviceServiceImpl implements ConnectedDeviceService {
 
         accessService.checkUser(userId);
 
-        if (!userService.userExists(userId)) {
+        if (userService.userNotExists(userId)) {
             log.warn("User not found when updating device for user id: {}", userId);
             throw new ResourceNotFoundException("User not found with id: " + userId);
         }

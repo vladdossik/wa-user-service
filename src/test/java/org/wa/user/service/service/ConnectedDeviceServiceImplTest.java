@@ -13,7 +13,6 @@ import org.wa.user.service.entity.ConnectedDeviceEntity;
 import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.exception.AttributeDuplicateException;
 import org.wa.user.service.exception.ResourceNotFoundException;
-import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.mapper.ConnectedDeviceMapper;
 import org.wa.user.service.repository.ConnectedDeviceRepository;
 import org.wa.user.service.service.impl.ConnectedDeviceServiceImpl;
@@ -49,10 +48,12 @@ public class ConnectedDeviceServiceImplTest {
     private ConnectedDeviceCreateDto deviceCreateDto;
     private ConnectedDeviceUpdateDto deviceUpdateDto;
     private ConnectedDeviceResponseDto deviceResponseDto;
+    private Long userId;
 
     @BeforeEach
     void setUp() {
         user = Initializer.createTestUser();
+        userId = user.getId();
         device = Initializer.createTestDevice(user);
         deviceCreateDto = Initializer.createTestDeviceCreateDto();
         deviceUpdateDto = Initializer.createTestDeviceUpdateDto();
@@ -61,131 +62,142 @@ public class ConnectedDeviceServiceImplTest {
 
     @Test
     void getUserDevicesTest_success() {
-        when(userService.userExists(1L)).thenReturn(true);
-        when(deviceRepository.findByUserId(1L)).thenReturn(List.of(device));
+        when(userService.userNotExists(userId)).thenReturn(false);
+        when(deviceRepository.findByUserId(userId)).thenReturn(List.of(device));
         when(deviceMapper.toResponseDtoList(List.of(device))).thenReturn(List.of(deviceResponseDto));
 
-        List<ConnectedDeviceResponseDto> response = connectedDeviceService.getUserDevices(1L);
+        List<ConnectedDeviceResponseDto> response = connectedDeviceService.getUserDevices(userId);
 
         assertNotNull(response);
         assertEquals(List.of(deviceResponseDto), response);
-        verify(deviceRepository, times(1)).findByUserId(1L);
+        verify(accessService, times(1)).checkUser(userId);
+        verify(deviceRepository, times(1)).findByUserId(userId);
     }
 
     @Test
     void getUserDevicesTest_userNotFound() {
-        when(userService.userExists(1L)).thenReturn(false);
+        when(userService.userNotExists(userId)).thenReturn(true);
 
-        assertThrows(ResourceNotFoundException.class, () -> connectedDeviceService.getUserDevices(1L));
+        assertThrows(ResourceNotFoundException.class,
+                () -> connectedDeviceService.getUserDevices(userId));
+        verify(accessService, times(1)).checkUser(userId);
     }
 
     @Test
     void addUserDeviceTest_success() {
-        when(userService.getUserEntity(1L)).thenReturn(user);
-        when(deviceRepository.existsByDeviceId("device-123")).thenReturn(false);
+        when(userService.getUserEntity(userId)).thenReturn(user);
+        when(deviceRepository.existsByDeviceId(deviceCreateDto.getDeviceId())).thenReturn(false);
         when(deviceMapper.setDeviceDefaults(deviceCreateDto, user)).thenReturn(device);
         when(deviceRepository.save(device)).thenReturn(device);
         when(deviceMapper.toResponseDto(device)).thenReturn(deviceResponseDto);
 
-        ConnectedDeviceResponseDto response = connectedDeviceService.addUserDevice(1L, deviceCreateDto);
+        ConnectedDeviceResponseDto response = connectedDeviceService.addUserDevice(userId, deviceCreateDto);
 
         assertNotNull(response);
+        verify(accessService, times(1)).checkUser(userId);
         verify(deviceMapper, times(1)).setDeviceDefaults(deviceCreateDto, user);
         verify(deviceRepository, times(1)).save(device);
-        verify(deviceMapper, times(1)).toResponseDto(device);
     }
 
     @Test
     void addUserDeviceTest_deviceExists() {
-        when(userService.getUserEntity(1L)).thenReturn(user);
-        when(deviceRepository.existsByDeviceId("device-123")).thenReturn(true);
+        when(userService.getUserEntity(userId)).thenReturn(user);
+        when(deviceRepository.existsByDeviceId(deviceCreateDto.getDeviceId())).thenReturn(true);
 
         assertThrows(AttributeDuplicateException.class,
-                () -> connectedDeviceService.addUserDevice(1L, deviceCreateDto));
+                () -> connectedDeviceService.addUserDevice(userId, deviceCreateDto));
+        verify(accessService, times(1)).checkUser(userId);
     }
 
     @Test
     void addUserDeviceTest_userNotFound() {
-        when(userService.getUserEntity(1L))
-                .thenThrow(new ResourceNotFoundException("User not found"));
+        when(userService.getUserEntity(userId)).thenThrow(new ResourceNotFoundException("User not found"));
 
         assertThrows(ResourceNotFoundException.class,
-                () -> connectedDeviceService.addUserDevice(1L, deviceCreateDto));
+                () -> connectedDeviceService.addUserDevice(userId, deviceCreateDto));
+        verify(accessService, times(1)).checkUser(userId);
     }
 
     @Test
     void updateUserDeviceTest_success() {
-        when(userService.userExists(1L)).thenReturn(true);
-        when(deviceRepository.findByUserIdAndDeviceId(1L, 1L))
+        when(userService.userNotExists(userId)).thenReturn(false);
+        when(deviceRepository.findByUserIdAndDeviceId(userId, 1L))
                 .thenReturn(Optional.of(device));
         when(deviceRepository.save(device)).thenReturn(device);
         when(deviceMapper.toResponseDto(device)).thenReturn(deviceResponseDto);
 
         ConnectedDeviceResponseDto response = connectedDeviceService.updateUserDevice(
-                1L, 1L, deviceUpdateDto);
+                userId, 1L, deviceUpdateDto);
 
         assertNotNull(response);
+        verify(accessService, times(1)).checkUser(userId);
         verify(deviceMapper, times(1)).updateEntityFromDto(deviceUpdateDto, device);
         verify(deviceRepository, times(1)).save(device);
     }
 
     @Test
     void updateUserDeviceTest_userNotFound() {
-        when(userService.userExists(1L)).thenReturn(false);
+        when(userService.userNotExists(userId)).thenReturn(true);
 
         assertThrows(ResourceNotFoundException.class,
-                () -> connectedDeviceService.updateUserDevice(1L, 1L, deviceUpdateDto));
+                () -> connectedDeviceService.updateUserDevice(userId, 1L, deviceUpdateDto));
+        verify(accessService, times(1)).checkUser(userId);
     }
 
     @Test
     void updateUserDeviceTest_deviceNotFound() {
-        when(userService.userExists(1L)).thenReturn(true);
-        when(deviceRepository.findByUserIdAndDeviceId(1L, 1L))
+        when(userService.userNotExists(userId)).thenReturn(false);
+        when(deviceRepository.findByUserIdAndDeviceId(userId, 1L))
                 .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> connectedDeviceService.updateUserDevice(1L, 1L, deviceUpdateDto));
+                () -> connectedDeviceService.updateUserDevice(userId, 1L, deviceUpdateDto));
+        verify(accessService, times(1)).checkUser(userId);
     }
 
     @Test
     void syncDeviceTest_success() {
-        when(deviceRepository.findByUserIdAndDeviceId(1L, 1L))
+        when(deviceRepository.findByUserIdAndDeviceId(userId, 1L))
                 .thenReturn(Optional.of(device));
         when(deviceRepository.save(device)).thenReturn(device);
         when(deviceMapper.toResponseDto(device)).thenReturn(deviceResponseDto);
 
-        ConnectedDeviceResponseDto response = connectedDeviceService.syncDevice(1L, 1L);
+        ConnectedDeviceResponseDto response = connectedDeviceService.syncDevice(userId, 1L);
 
         assertNotNull(response);
         assertNotNull(device.getLastSyncAt());
+        verify(accessService, times(1)).checkUser(userId);
         verify(deviceRepository, times(1)).save(device);
     }
 
     @Test
     void syncDeviceTest_deviceNotFound() {
-        when(deviceRepository.findByUserIdAndDeviceId(1L, 1L))
+        when(deviceRepository.findByUserIdAndDeviceId(userId, 1L))
                 .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> connectedDeviceService.syncDevice(1L, 1L));
+                () -> connectedDeviceService.syncDevice(userId, 1L));
+        verify(accessService, times(1)).checkUser(userId);
     }
 
     @Test
     void deleteDeviceTest_success() {
-        when(deviceRepository.findByUserIdAndDeviceId(1L, 1L))
+        when(deviceRepository.findByUserIdAndDeviceId(userId, 1L))
                 .thenReturn(Optional.of(device));
 
-        connectedDeviceService.deleteDevice(1L, 1L);
+        connectedDeviceService.deleteDevice(userId, 1L);
 
+        verify(accessService, times(1)).checkUser(userId);
         verify(deviceRepository, times(1)).delete(device);
     }
 
     @Test
     void deleteDeviceTest_deviceNotFound() {
-        when(deviceRepository.findByUserIdAndDeviceId(1L, 1L))
+        when(deviceRepository.findByUserIdAndDeviceId(userId, 1L))
                 .thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> connectedDeviceService.deleteDevice(1L, 1L));
+                () -> connectedDeviceService.deleteDevice(userId, 1L));
+        verify(accessService, times(1)).checkUser(userId);
     }
 }

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.entity.enumeration.Status;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface UserRepository extends JpaRepository<UserEntity, Long> {
@@ -16,13 +17,19 @@ public interface UserRepository extends JpaRepository<UserEntity, Long> {
 
     boolean existsByEmail(String email);
 
-    boolean existsByEmailAndIdNot(String email, Long id);
+    boolean existsByEmailAndExternalId(String email, UUID externalId);
 
     boolean existsByPhone(String phone);
 
-    boolean existsByPhoneAndIdNot(String phone, Long id);
+    boolean existsByPhoneAndExternalId(String phone, UUID externalId);
 
     Page<UserEntity> findByStatusNot(Status status, Pageable pageable);
 
     Optional<UserEntity> findByEmail(String email);
+
+    boolean existsByExternalId(UUID externalId);
+
+    Optional<UserEntity> findByExternalId(UUID externalId);
+
+    void deleteByExternalId(UUID externalId);
 }

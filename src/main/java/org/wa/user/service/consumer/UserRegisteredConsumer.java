@@ -26,7 +26,7 @@ public class UserRegisteredConsumer {
         try {
             UserResponseDto userCreateResponse = userService.createUserFromRegisteredEvent(event);
             userProfileService.createUserProfileFromRegisteredEvent(
-                    userCreateResponse.getId(), userCreateResponse);
+                    userCreateResponse.getExternalId(), userCreateResponse);
         } catch (AttributeDuplicateException exception) {
             log.warn("user already processed");
         }

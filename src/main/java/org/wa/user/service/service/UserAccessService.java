@@ -1,4 +1,4 @@
-package org.wa.user.service.config;
+package org.wa.user.service.service;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +15,23 @@ public class UserAccessService {
 
     private final UserRepository userRepository;
 
-    public void checkUser(Long userId) {
-        if (!isAdmin()) {
-            checkUserAccess(userId);
+    public void checkUser(Object targetId) {
+        if (isAdmin()) return;
+
+        Object currentId = targetId instanceof Long ? getCurrentUserId() : AuthContextHolder.getId();
+
+        if (!currentId.equals(targetId)) {
+            log.warn("Access denied: user {} tried to access user {}", currentId, targetId);
+            throw new AccessException("Access denied");
+        }
+    }
+
+    public boolean checkAccess(Object targetId) {
+        try {
+            checkUser(targetId);
+            return true;
+        } catch (AccessException e) {
+            return false;
         }
     }
 
@@ -26,21 +40,9 @@ public class UserAccessService {
                 .anyMatch(role -> role.getAuthority().equals("ROLE_ADMIN"));
     }
 
-    public Long getUserId() {
-        String email = AuthContextHolder.getEmail();
-
-        return userRepository.findByEmail(email)
+    private Long getCurrentUserId() {
+        return userRepository.findByEmail(AuthContextHolder.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found"))
                 .getId();
-    }
-
-    private void checkUserAccess(Long targetUserId) {
-        Long userId = getUserId();
-
-        if (!userId.equals(targetUserId)) {
-            log.warn("Access denied: user {} tried to access user {}", userId, targetUserId);
-            throw new AccessException("Access denied to user data");
-        }
-        log.debug("User access granted to own data {}", targetUserId);
     }
 }

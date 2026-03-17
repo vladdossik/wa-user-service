@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class ConnectedDeviceUpdateDto {
-    @NotBlank(message = "Device model is required")
+    @NotBlank(message = "Требуется модель устройства")
     private String deviceModel;
     private Boolean isActive;
 }

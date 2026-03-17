@@ -15,9 +15,7 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.wa.user.service.entity.enumeration.Gender;
@@ -26,6 +24,7 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users")
@@ -37,6 +36,9 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "user_seq")
     @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
     private Long id;
+
+    @Column(name = "external_id", unique = true, nullable = false)
+    private UUID externalId;
 
     @Column(name = "email", unique = true, nullable = false)
     private String email;
@@ -75,7 +77,8 @@ public class UserEntity {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<ConnectedDeviceEntity> connectedDevices = new ArrayList<>();
 
-    public UserEntity(String email, String phone, LocalDateTime birthday, Gender gender) {
+    public UserEntity(UUID externalId, String email, String phone, LocalDateTime birthday, Gender gender) {
+        this.externalId = externalId;
         this.email = email;
         this.phone = phone;
         this.birthday = birthday;

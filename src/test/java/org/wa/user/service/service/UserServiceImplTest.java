@@ -10,6 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.wa.user.service.dto.common.PageResponse;
 import org.wa.user.service.dto.user.UserCreateDto;
+import org.wa.user.service.dto.user.UserRegisteredDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserStatusUpdateDto;
@@ -18,13 +19,14 @@ import org.wa.user.service.entity.UserEntity;
 import org.wa.user.service.entity.enumeration.Status;
 import org.wa.user.service.exception.AttributeDuplicateException;
 import org.wa.user.service.exception.ResourceNotFoundException;
-import org.wa.user.service.config.UserAccessService;
 import org.wa.user.service.mapper.UserMapper;
 import org.wa.user.service.repository.UserRepository;
 import org.wa.user.service.service.impl.UserServiceImpl;
 import org.wa.user.service.util.Initializer;
 import java.util.Optional;
+import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -48,8 +50,8 @@ public class UserServiceImplTest {
 
     private UserEntity user;
     private UserEntity deletedUser;
-    private UserCreateDto createDto;
     private UserUpdateDto updateDto;
+    private UserRegisteredDto registeredDto;
     private Pageable pageable;
     private Page<UserEntity> userPage;
     private UserShortInfoDto userShortInfoDto;
@@ -57,12 +59,18 @@ public class UserServiceImplTest {
     private UserStatusUpdateDto statusUpdateDto;
     private UserUpdateDto updateDtoWithNewValues;
     private UserUpdateDto updateDtoWithExistingEmail;
+    private UserCreateDto createDto;
+    private UUID externalId;
+    private Long internalId;
 
     @BeforeEach
     void setUp() {
         user = Initializer.createTestUser();
+        externalId = user.getExternalId();
+        internalId = user.getId();
         createDto = Initializer.createTestUserCreateDto();
         updateDto = Initializer.createTestUserUpdateDto();
+        registeredDto = Initializer.createTestUserRegisteredDto();
         pageable = Initializer.createDefaultPageable();
         userPage = Initializer.createUserPage(user);
         userShortInfoDto = Initializer.createTestUserShortInfoDto();
@@ -99,148 +107,262 @@ public class UserServiceImplTest {
 
     @Test
     void getUserByIdTest_success() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(user));
         when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
 
-        UserResponseDto response = userService.getUserById(1L);
+        UserResponseDto response = userService.getUserById(externalId);
 
         assertNotNull(response);
-        assertEquals(1L, response.getId());
+        assertEquals(externalId, response.getExternalId());
         assertEquals("test@email.com", response.getEmail());
-        verify(userRepository, times(1)).findById(1L);
+        verify(accessService, times(1)).checkUser(externalId);
+        verify(userRepository, times(1)).findByExternalId(externalId);
     }
 
     @Test
     void getUserByIdTest_userNotFound() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> userService.getUserById(1L));
+                () -> userService.getUserById(externalId));
+        verify(accessService, times(1)).checkUser(externalId);
     }
 
     @Test
     void getUserByIdTest_userDeleted() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(deletedUser));
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(deletedUser));
 
         assertThrows(ResourceNotFoundException.class,
-                () -> userService.getUserById(1L));
+                () -> userService.getUserById(externalId));
+        verify(accessService, times(1)).checkUser(externalId);
     }
 
     @Test
-    void createUserTest_success() {
-        when(userRepository.existsByEmail("test@email.com")).thenReturn(false);
-        when(userRepository.existsByPhone("+79164538676")).thenReturn(false);
+    void createUserFromRegisteredEventTest_success() {
+        when(userMapper.toCreateDtoFromTopic(registeredDto)).thenReturn(createDto);
+        when(userRepository.existsByExternalId(createDto.getExternalId())).thenReturn(false);
+        when(userRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
+        when(userRepository.existsByPhone(createDto.getPhone())).thenReturn(false);
         when(userMapper.toEntity(createDto)).thenReturn(user);
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
 
-        UserResponseDto response = userService.createUser(createDto);
+        UserResponseDto response = userService.createUserFromRegisteredEvent(registeredDto);
 
         assertNotNull(response);
-        assertEquals(Status.ACTIVE, user.getStatus());
+        assertEquals(externalId, response.getExternalId());
+        verify(userMapper, times(1)).toCreateDtoFromTopic(registeredDto);
         verify(userRepository, times(1)).save(user);
     }
 
     @Test
-    void createUserTest_emailExists() {
-        when(userRepository.existsByEmail("test@email.com")).thenReturn(true);
+    void createUserFromRegisteredEventTest_externalIdExists() {
+        when(userMapper.toCreateDtoFromTopic(registeredDto)).thenReturn(createDto);
+        when(userRepository.existsByExternalId(createDto.getExternalId())).thenReturn(true);
 
         assertThrows(AttributeDuplicateException.class,
-                () -> userService.createUser(createDto));
+                () -> userService.createUserFromRegisteredEvent(registeredDto));
     }
 
     @Test
-    void createUserTest_phoneExists() {
-        when(userRepository.existsByEmail("test@email.com")).thenReturn(false);
-        when(userRepository.existsByPhone("+79164538676")).thenReturn(true);
+    void createUserFromRegisteredEventTest_emailExists() {
+        when(userMapper.toCreateDtoFromTopic(registeredDto)).thenReturn(createDto);
+        when(userRepository.existsByExternalId(createDto.getExternalId())).thenReturn(false);
+        when(userRepository.existsByEmail(createDto.getEmail())).thenReturn(true);
 
         assertThrows(AttributeDuplicateException.class,
-                () -> userService.createUser(createDto));
+                () -> userService.createUserFromRegisteredEvent(registeredDto));
+    }
+
+    @Test
+    void createUserFromRegisteredEventTest_phoneExists() {
+        when(userMapper.toCreateDtoFromTopic(registeredDto)).thenReturn(createDto);
+        when(userRepository.existsByExternalId(createDto.getExternalId())).thenReturn(false);
+        when(userRepository.existsByEmail(createDto.getEmail())).thenReturn(false);
+        when(userRepository.existsByPhone(createDto.getPhone())).thenReturn(true);
+
+        assertThrows(AttributeDuplicateException.class,
+                () -> userService.createUserFromRegisteredEvent(registeredDto));
     }
 
     @Test
     void updateUserTest_success() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.existsByEmailAndIdNot("new@email.com", 1L))
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmailAndExternalId(updateDtoWithNewValues.getEmail(), user.getExternalId()))
                 .thenReturn(false);
-        when(userRepository.existsByPhoneAndIdNot("+79164538677", 1L))
+        when(userRepository.existsByPhoneAndExternalId(updateDtoWithNewValues.getPhone(), user.getExternalId()))
                 .thenReturn(false);
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
 
-        UserResponseDto response = userService.updateUser(1L, updateDtoWithNewValues);
+        UserResponseDto response = userService.updateUser(externalId, updateDtoWithNewValues);
 
         assertNotNull(response);
+        verify(accessService, times(1)).checkUser(externalId);
         verify(userMapper, times(1)).updateEntityFromDto(updateDtoWithNewValues, user);
         verify(userRepository, times(1)).save(user);
     }
 
     @Test
     void updateUserTest_userNotFound() {
-        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.empty());
 
         assertThrows(ResourceNotFoundException.class,
-                () -> userService.updateUser(1L, updateDto));
+                () -> userService.updateUser(externalId, updateDto));
+        verify(accessService, times(1)).checkUser(externalId);
+    }
+
+    @Test
+    void updateUserTest_userDeleted() {
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(deletedUser));
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> userService.updateUser(externalId, updateDto));
+        verify(accessService, times(1)).checkUser(externalId);
     }
 
     @Test
     void updateUserTest_emailExists() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.existsByEmailAndIdNot("existing@email.com", 1L))
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(user));
+        when(userRepository.existsByEmailAndExternalId(updateDtoWithExistingEmail.getEmail(), user.getExternalId()))
                 .thenReturn(true);
 
         assertThrows(AttributeDuplicateException.class,
-                () -> userService.updateUser(1L, updateDtoWithExistingEmail));
+                () -> userService.updateUser(externalId, updateDtoWithExistingEmail));
+        verify(accessService, times(1)).checkUser(externalId);
+    }
+
+    @Test
+    void updateUserTest_phoneExists() {
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(user));
+        when(userRepository.existsByPhoneAndExternalId(updateDtoWithNewValues.getPhone(), user.getExternalId()))
+                .thenReturn(true);
+
+        assertThrows(AttributeDuplicateException.class,
+                () -> userService.updateUser(externalId, updateDtoWithNewValues));
+        verify(accessService, times(1)).checkUser(externalId);
     }
 
     @Test
     void deleteUserTest_success() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
 
-        userService.deleteUser(1L);
+        userService.deleteUser(externalId);
 
         assertEquals(Status.DELETED, user.getStatus());
+        verify(accessService, times(1)).checkUser(externalId);
         verify(userRepository, times(1)).save(user);
+    }
+
+    @Test
+    void deleteUserTest_userNotFound() {
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> userService.deleteUser(externalId));
+        verify(accessService, times(1)).checkUser(externalId);
     }
 
     @Test
     void hardDeleteUserTest_success() {
-        when(userRepository.existsById(1L)).thenReturn(true);
+        when(userRepository.existsByExternalId(externalId)).thenReturn(true);
 
-        userService.hardDeleteUser(1L);
+        userService.hardDeleteUser(externalId);
 
-        verify(userRepository, times(1)).deleteById(1L);
+        verify(accessService, times(1)).checkUser(externalId);
+        verify(userRepository, times(1)).deleteByExternalId(externalId);
     }
 
     @Test
     void hardDeleteUserTest_userNotFound() {
-        when(userRepository.existsById(1L)).thenReturn(false);
+        when(userRepository.existsByExternalId(externalId)).thenReturn(false);
 
         assertThrows(ResourceNotFoundException.class,
-                () -> userService.hardDeleteUser(1L));
+                () -> userService.hardDeleteUser(externalId));
+        verify(accessService, times(1)).checkUser(externalId);
     }
 
     @Test
     void updateUserStatusTest_success() {
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
         when(userMapper.toResponseDto(user)).thenReturn(userResponseDto);
 
-        UserResponseDto response = userService.updateUserStatus(1L, statusUpdateDto);
+        UserResponseDto response = userService.updateUserStatus(externalId, statusUpdateDto);
 
         assertNotNull(response);
         assertEquals(Status.ACTIVE, user.getStatus());
+        verify(accessService, times(1)).checkUser(externalId);
         verify(userRepository, times(1)).save(user);
     }
 
     @Test
-    void userExistsTest_success() {
-        when(userRepository.existsById(1L)).thenReturn(true);
+    void updateUserStatusTest_userNotFound() {
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.empty());
 
-        boolean exists = userService.userExists(1L);
+        assertThrows(ResourceNotFoundException.class,
+                () -> userService.updateUserStatus(externalId, statusUpdateDto));
+        verify(accessService, times(1)).checkUser(externalId);
+    }
 
-        assertTrue(exists);
-        verify(userRepository, times(1)).existsById(1L);
+    @Test
+    void getUserEntityByExternalIdTest_success() {
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.of(user));
+
+        UserEntity found = userService.getUserEntityByExternalId(externalId);
+
+        assertNotNull(found);
+        assertEquals(externalId, found.getExternalId());
+        verify(userRepository, times(1)).findByExternalId(externalId);
+    }
+
+    @Test
+    void getUserEntityByExternalIdTest_notFound() {
+        when(userRepository.findByExternalId(externalId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> userService.getUserEntityByExternalId(externalId));
+    }
+
+    @Test
+    void getUserEntityByInternalIdTest_success() {
+        when(userRepository.findById(internalId)).thenReturn(Optional.of(user));
+
+        UserEntity found = userService.getUserEntity(internalId);
+
+        assertNotNull(found);
+        assertEquals(internalId, found.getId());
+        assertEquals(externalId, found.getExternalId());
+        verify(userRepository, times(1)).findById(internalId);
+    }
+
+    @Test
+    void getUserEntityByInternalIdTest_notFound() {
+        when(userRepository.findById(internalId)).thenReturn(Optional.empty());
+
+        assertThrows(ResourceNotFoundException.class,
+                () -> userService.getUserEntity(internalId));
+        verify(userRepository, times(1)).findById(internalId);
+    }
+
+    @Test
+    void userNotExistsTest_whenUserExists() {
+        when(userRepository.existsById(internalId)).thenReturn(true);
+
+        boolean result = userService.userNotExists(internalId);
+
+        assertFalse(result);
+        verify(userRepository, times(1)).existsById(internalId);
+    }
+
+    @Test
+    void userNotExistsTest_whenUserDoesNotExist() {
+        when(userRepository.existsById(internalId)).thenReturn(false);
+
+        boolean result = userService.userNotExists(internalId);
+
+        assertTrue(result);
+        verify(userRepository, times(1)).existsById(internalId);
     }
 }

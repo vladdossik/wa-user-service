@@ -2,24 +2,27 @@ package org.wa.user.service.mapper;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.wa.user.service.dto.user.UserCreateDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserUpdateDto;
 import org.wa.user.service.entity.UserEntity;
+import org.wa.user.service.entity.enumeration.Gender;
 import org.wa.user.service.service.DecryptService;
 import org.wa.user.service.util.Initializer;
+import java.time.LocalDateTime;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class UserMapperTest {
-    @Autowired
+
     private UserMapper userMapper;
     
     @MockBean
@@ -31,6 +34,8 @@ public class UserMapperTest {
 
     @BeforeEach
     void setUp() {
+        userMapper = Mappers.getMapper(UserMapper.class);
+        userMapper.decryptService = decryptService;
         user = Initializer.createTestUser();
         createDto = Initializer.createTestUserCreateDto();
         updateDto = Initializer.createTestUserUpdateDto();
@@ -41,7 +46,7 @@ public class UserMapperTest {
         UserResponseDto responseDto = userMapper.toResponseDto(user);
 
         assertNotNull(responseDto);
-        assertEquals(user.getId(), responseDto.getId());
+        assertEquals(user.getExternalId(), responseDto.getExternalId());
         assertEquals(user.getEmail(), responseDto.getEmail());
         assertEquals(user.getPhone(), responseDto.getPhone());
         assertEquals(user.getBirthday(), responseDto.getBirthday());
@@ -63,7 +68,7 @@ public class UserMapperTest {
         UserShortInfoDto shortInfoDto = userMapper.toShortInfoDto(user);
 
         assertNotNull(shortInfoDto);
-        assertEquals(user.getId(), shortInfoDto.getId());
+        assertEquals(user.getExternalId(), shortInfoDto.getExternalId());
         assertEquals(user.getEmail(), shortInfoDto.getEmail());
         assertEquals(user.getPhone(), shortInfoDto.getPhone());
         assertEquals(user.getStatus(), shortInfoDto.getStatus());
@@ -80,6 +85,7 @@ public class UserMapperTest {
 
         assertNotNull(entity);
         assertNull(entity.getId());
+        assertEquals(createDto.getExternalId(), entity.getExternalId());
         assertNull(entity.getStatus());
         assertNull(entity.getCreatedAt());
         assertNull(entity.getModifiedAt());
@@ -104,6 +110,8 @@ public class UserMapperTest {
         UserEntity existingUser = Initializer.createTestUser();
         existingUser.setEmail("old@email.com");
         existingUser.setPhone("+79160000000");
+        existingUser.setBirthday(LocalDateTime.now().minusYears(20));
+        existingUser.setGender(Gender.MALE);
         existingUser.setHeight(170);
         existingUser.setWeight(70);
 
@@ -111,10 +119,10 @@ public class UserMapperTest {
 
         assertEquals(updateDto.getEmail(), existingUser.getEmail());
         assertEquals(updateDto.getPhone(), existingUser.getPhone());
+        assertEquals(updateDto.getBirthday(), existingUser.getBirthday());
+        assertEquals(updateDto.getGender(), existingUser.getGender());
         assertEquals(updateDto.getHeight(), existingUser.getHeight());
         assertEquals(updateDto.getWeight(), existingUser.getWeight());
-        assertNotNull(existingUser.getBirthday());
-        assertNotNull(existingUser.getGender());
         assertNotNull(existingUser.getStatus());
         assertNotNull(existingUser.getCreatedAt());
         assertNotNull(existingUser.getModifiedAt());
@@ -129,6 +137,8 @@ public class UserMapperTest {
         UserUpdateDto partialUpdateDto = new UserUpdateDto();
         partialUpdateDto.setEmail("updated@email.com");
         partialUpdateDto.setHeight(185);
+        partialUpdateDto.setBirthday(LocalDateTime.now().minusYears(10));
+        partialUpdateDto.setGender(Gender.FEMALE);
 
         userMapper.updateEntityFromDto(partialUpdateDto, existingUser);
 
@@ -136,6 +146,8 @@ public class UserMapperTest {
         assertEquals(185, existingUser.getHeight());
         assertEquals(originalPhone, existingUser.getPhone());
         assertEquals(originalWeight, existingUser.getWeight());
+        assertEquals(partialUpdateDto.getBirthday(), existingUser.getBirthday());
+        assertEquals(partialUpdateDto.getGender(), existingUser.getGender());
     }
 
     @Test
@@ -143,10 +155,14 @@ public class UserMapperTest {
         UserEntity existingUser = Initializer.createTestUser();
         String originalEmail = existingUser.getEmail();
         String originalPhone = existingUser.getPhone();
+        LocalDateTime originalBirthday = existingUser.getBirthday();
+        Gender originalGender = existingUser.getGender();
 
         userMapper.updateEntityFromDto(null, existingUser);
 
         assertEquals(originalEmail, existingUser.getEmail());
         assertEquals(originalPhone, existingUser.getPhone());
+        assertEquals(originalBirthday, existingUser.getBirthday());
+        assertEquals(originalGender, existingUser.getGender());
     }
 }

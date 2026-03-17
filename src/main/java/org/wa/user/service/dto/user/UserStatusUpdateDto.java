@@ -6,6 +6,6 @@ import org.wa.user.service.entity.enumeration.Status;
 
 @Data
 public class UserStatusUpdateDto {
-    @NotNull(message = "Status is required")
+    @NotNull(message = "Требуется значение статуса (PENDING, ACTIVE, BLOCKED, DELETED)")
     private Status status;
 }

@@ -20,7 +20,7 @@ public abstract class UserMapper {
     
     @Autowired
     protected DecryptService decryptService;
-    
+
     public abstract UserResponseDto toResponseDto(UserEntity userEntity);
 
     public abstract UserShortInfoDto toShortInfoDto(UserEntity userEntity);
@@ -43,8 +43,7 @@ public abstract class UserMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "birthday", ignore = true)
-    @Mapping(target = "gender", ignore = true)
+    @Mapping(target = "externalId", ignore = true)
     @Mapping(target = "status", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)

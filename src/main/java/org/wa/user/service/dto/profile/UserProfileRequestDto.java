@@ -7,7 +7,7 @@ import org.wa.user.service.entity.enumeration.HealthGoal;
 
 @Data
 public class UserProfileRequestDto {
-    @NotBlank(message = "First name is required")
+    @NotBlank(message = "Требуется указать имя")
     private String firstName;
     private String lastName;
     private ActivityLevel activityLevel;

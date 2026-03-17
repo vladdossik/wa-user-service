@@ -10,6 +10,7 @@ import org.wa.user.service.dto.device.ConnectedDeviceUpdateDto;
 import org.wa.user.service.dto.profile.UserProfileRequestDto;
 import org.wa.user.service.dto.profile.UserProfileResponseDto;
 import org.wa.user.service.dto.user.UserCreateDto;
+import org.wa.user.service.dto.user.UserRegisteredDto;
 import org.wa.user.service.dto.user.UserResponseDto;
 import org.wa.user.service.dto.user.UserShortInfoDto;
 import org.wa.user.service.dto.user.UserStatusUpdateDto;
@@ -26,10 +27,12 @@ import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.time.ZoneOffset;
 import java.util.List;
+import java.util.UUID;
 
 public class Initializer {
 
     protected static final Long TEST_ID = 1L;
+    protected static final UUID TEST_EXTERNAL_ID = UUID.randomUUID();
     protected static final String TEST_EMAIL = "test@email.com";
     protected static final String TEST_PHONE = "+79164538676";
     protected static final String TEST_DEVICE_ID = "device-123";
@@ -45,6 +48,7 @@ public class Initializer {
     public static UserEntity createTestUser() {
         UserEntity user = new UserEntity();
         user.setId(TEST_ID);
+        user.setExternalId(TEST_EXTERNAL_ID);
         user.setEmail(TEST_EMAIL);
         user.setPhone(TEST_PHONE);
         user.setBirthday(TEST_BIRTHDAY);
@@ -88,6 +92,7 @@ public class Initializer {
 
     public static UserCreateDto createTestUserCreateDto() {
         UserCreateDto dto = new UserCreateDto();
+        dto.setExternalId(TEST_EXTERNAL_ID);
         dto.setEmail(TEST_EMAIL);
         dto.setPhone(TEST_PHONE);
         dto.setBirthday(TEST_BIRTHDAY);
@@ -101,6 +106,8 @@ public class Initializer {
         UserUpdateDto dto = new UserUpdateDto();
         dto.setEmail(TEST_EMAIL);
         dto.setPhone(TEST_PHONE);
+        dto.setBirthday(TEST_BIRTHDAY);
+        dto.setGender(TEST_GENDER);
         dto.setHeight(TEST_HEIGHT);
         dto.setWeight(TEST_WEIGHT);
         return dto;
@@ -126,7 +133,7 @@ public class Initializer {
 
     public static UserResponseDto createTestUserResponseDto() {
         UserResponseDto dto = new UserResponseDto();
-        dto.setId(TEST_ID);
+        dto.setExternalId(TEST_EXTERNAL_ID);
         dto.setEmail(TEST_EMAIL);
         dto.setPhone(TEST_PHONE);
         dto.setBirthday(TEST_BIRTHDAY);
@@ -141,7 +148,7 @@ public class Initializer {
 
     public static UserShortInfoDto createTestUserShortInfoDto() {
         UserShortInfoDto dto = new UserShortInfoDto();
-        dto.setId(TEST_ID);
+        dto.setExternalId(TEST_EXTERNAL_ID);
         dto.setEmail(TEST_EMAIL);
         dto.setPhone(TEST_PHONE);
         dto.setStatus(Status.ACTIVE);
@@ -205,5 +212,13 @@ public class Initializer {
 
     public static Page<UserEntity> createUserPage(UserEntity user) {
         return new PageImpl<>(List.of(user));
+    }
+
+    public static UserRegisteredDto createTestUserRegisteredDto() {
+        UserRegisteredDto dto = new UserRegisteredDto();
+        dto.setExternalId(TEST_EXTERNAL_ID);
+        dto.setEmail(TEST_EMAIL);
+        dto.setPhone(TEST_PHONE);
+        return dto;
     }
 }
