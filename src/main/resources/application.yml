@@ -22,6 +22,11 @@ spring:
       spring.json.trusted.packages: "org.wa.user.service.dto.user,java.util,java.lang"
       spring.json.use.type.headers: false
       spring.deserializer.value.error.handling: logAndContinue
+  data:
+    redis:
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      connect-timeout: ${REDIS_TIMEOUT}
 
   jpa:
     hibernate:
@@ -39,18 +44,9 @@ spring:
     password: ${DB_PASSWORD}
     default-schema: ${DB_SCHEMA:wa_user_service_db}
     liquibase-schema: public
+
 server:
   port: 8081
-
-integration:
-  auth-service:
-    base-url: ${INTEGRATION_AUTH_SERVICE_BASE_URL:http://localhost:8080}
-    timeout: 5000
-
-auth-service:
-  login-endpoint: "/v1/auth/login"
-  accessToken-endpoint: "/v1/auth/token"
-  refreshToken-endpoint: "/v1/auth/refresh"
 
 springdoc:
   swagger-ui:
@@ -65,9 +61,6 @@ kafka:
 jwt:
   secret:
     access: ${JWT_SECRET_ACCESS}
-    refresh: ${JWT_SECRET_REFRESH}
-  expiration-ms: ${JWT_EXPIRATION_MS}
-  refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS}
 
 encrypt:
   secret: ${ENCRYPT_SECRET}
